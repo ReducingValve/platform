@@ -1,6 +1,7 @@
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, AUTHOR, LICENSE } from '../consts';
 import { getPublishedEssays, measure } from '../lib/essays';
 import { essayHtml, essayText, canonicalUrl } from '../lib/feed';
+import { provenanceFor } from '../lib/provenance';
 
 export async function GET() {
   const essays = await getPublishedEssays();
@@ -17,6 +18,7 @@ export async function GET() {
     items: await Promise.all(
       essays.map(async (essay) => {
         const len = measure(essay.body ?? '');
+        const prov = provenanceFor(essay);
         return {
           id: canonicalUrl(essay),
           url: canonicalUrl(essay),
@@ -38,7 +40,11 @@ export async function GET() {
             word_count: len.words,
             token_count_estimate: len.tokens,
             license: LICENSE.url,
-            signed: false,
+            signed: prov.signed,
+            public_key_ed25519: prov.public_key_ed25519,
+            signature_ed25519: prov.signature,
+            markdown_url: `${canonicalUrl(essay)}.md`,
+            json_url: `${canonicalUrl(essay)}.json`,
           },
         };
       }),

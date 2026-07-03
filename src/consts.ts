@@ -11,6 +11,11 @@ export const SITE_DESCRIPTION =
  *  agents and copy-paste receive matches the visual layer. */
 export const TAGLINE_STRIP = 'AGENTS · MARKETS · ATTENTION';
 
+/** Footer identity line — the broadened voice; the locked bio sentence
+ *  stays for meta descriptions and social bios. */
+export const FOOTER_LINE =
+  'An independent magazine, written facing forward — published when there is something worth saying.';
+
 export const AUTHOR = 'Barnaba Barcellona';
 export const CONTACT_EMAIL = 'hello@thereducingvalve.com';
 
@@ -25,6 +30,10 @@ export const SOCIALS = [
  * The form posts to buttondown.com/api/emails/embed-subscribe/<username>.
  */
 export const BUTTONDOWN_USERNAME = 'reducingvalve';
+
+/** MCP endpoint (Cloudflare Worker on the zone route /mcp*; source in the
+ *  platform repo, workers/mcp). */
+export const MCP_URL = 'https://thereducingvalve.com/mcp';
 
 /** Default essay license until the CC BY / BY-NC decision is made (PLAN §4b). */
 export const LICENSE = {

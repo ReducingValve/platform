@@ -8,6 +8,7 @@ import NavBar from '../components/NavBar.astro';
 import FieldBackground from '../components/FieldBackground.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { CONTACT_EMAIL } from '../consts';
+import { PUBLIC_KEY_HEX } from '../lib/provenance';
 ---
 
 <Base title="About">
@@ -58,7 +59,7 @@ import { CONTACT_EMAIL } from '../consts';
             Essays are signed at build time with the key below. Verification instructions live
             in the footer of every essay.
           </p>
-          <p class="mono key">[ed25519 public key — published with the first signed essay]</p>
+          <p class="mono key">ed25519 {PUBLIC_KEY_HEX}</p>
 
           <h2 class="section">Contact</h2>
           <p>

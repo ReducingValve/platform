@@ -15,6 +15,18 @@ const essays = defineCollection({
       tags: z.array(z.enum(['agents', 'markets', 'attention'])).default([]),
       issue: z.number().int().positive().optional(),
       draft: z.boolean().default(false),
+      /** Composition declaration (PLAN §4d) — an authorial statement, never
+       *  inferred. False declaration is the one policed offense, so the
+       *  default is honest: undeclared until the author sets it. */
+      composition: z
+        .enum([
+          'human-written',
+          'machine-assisted',
+          'machine-generated under human direction',
+          'autonomous agent',
+          'undeclared',
+        ])
+        .default('undeclared'),
       /** Commissioned banner art (riso register, no text in image).
        *  Omit → the generative valve-field fallback renders instead. */
       banner: image().optional(),

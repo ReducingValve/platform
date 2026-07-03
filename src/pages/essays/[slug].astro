@@ -6,9 +6,11 @@ import NavBar from '../../components/NavBar.astro';
 import GenerativeBanner from '../../components/GenerativeBanner.astro';
 import Glyph from '../../components/Glyph.astro';
 import EmailCapture from '../../components/EmailCapture.astro';
+import AgentBlock from '../../components/AgentBlock.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { SITE_URL, SITE_NAME, AUTHOR, LICENSE } from '../../consts';
 import { getPublishedEssays, measure, formatDate, essayPath, type Essay } from '../../lib/essays';
+import { provenanceFor, shortKey } from '../../lib/provenance';
 
 export async function getStaticPaths() {
   const essays = await getPublishedEssays();
@@ -34,6 +36,7 @@ const published = essay.data.date;
 const updated = essay.data.updated ?? published;
 const showBanner = essay.data.type === 'essay';
 const coverMeta = essay.data.figures?.cover;
+const prov = provenanceFor(essay);
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -137,6 +140,8 @@ const jsonLd = {
           <Glyph width={44} stroke={4} />
         </div>
 
+        <AgentBlock slug={essay.id} signed={prov.signed} />
+
         <footer class="colophon">
           <p class="meta">
             © {published.getUTCFullYear()} {AUTHOR} · Licensed
@@ -144,8 +149,10 @@ const jsonLd = {
           </p>
           <p class="mono provenance">
             canonical: <a href={canonical}>{canonical}</a><br />
-            provenance: ed25519 signature pending — essays are signed when the
-            agent-readable edition ships · <a href="/openness">/openness</a>
+            provenance: {prov.signed
+              ? `ed25519-signed at build · key ${shortKey} · composition: ${prov.composition}`
+              : 'ed25519 signature pending'} ·
+            <a href="/openness#verification">verify</a>
           </p>
         </footer>
 

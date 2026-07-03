@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "reducing-valve-mcp",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-01",
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "thereducingvalve.com/mcp*", "zone_name": "thereducingvalve.com" }
+  ]
+}

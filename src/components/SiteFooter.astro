@@ -1,6 +1,6 @@
 ---
 import Glyph from './Glyph.astro';
-import { SITE_DESCRIPTION, TAGLINE_STRIP, CONTACT_EMAIL, SOCIALS, LICENSE } from '../consts';
+import { FOOTER_LINE, TAGLINE_STRIP, CONTACT_EMAIL, SOCIALS, LICENSE } from '../consts';
 
 const read = [
   { label: 'Essays', href: '/' },
@@ -22,7 +22,7 @@ const publication = [
     <div class="cols">
       <div class="identity">
         <Glyph width={48} stroke={3.5} />
-        <p class="bio">{SITE_DESCRIPTION}</p>
+        <p class="bio">{FOOTER_LINE}</p>
         <p class="strip">{TAGLINE_STRIP}</p>
       </div>
       <nav class="col" aria-label="Read">

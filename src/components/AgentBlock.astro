@@ -1,0 +1,142 @@
+---
+// The door at the bottom of every essay (redesign-plan §5): the same piece,
+// addressed to the reader's machine. Copy buttons are progressive
+// enhancement — with JS off the URLs are plain selectable text.
+import { SITE_URL, MCP_URL } from '../consts';
+import { shortKey } from '../lib/provenance';
+
+interface Props {
+  slug: string;
+  signed: boolean;
+}
+const { slug, signed } = Astro.props;
+const canonical = `${SITE_URL}/essays/${slug}`;
+
+const rows = [
+  { label: 'markdown', value: `${canonical}.md`, copy: true, href: `${canonical}.md` },
+  { label: 'json', value: `${canonical}.json`, copy: true, href: `${canonical}.json` },
+  { label: 'all essays', value: `${SITE_URL}/api/essays.json`, copy: true, href: '/api/essays.json' },
+  { label: 'mcp', value: MCP_URL, copy: true },
+];
+---
+
+<aside class="agent-block" aria-label="For your agent">
+  <p class="head">For your agent</p>
+  <dl>
+    {rows.map((row) => (
+      <div class="row">
+        <dt>{row.label}</dt>
+        <dd>
+          {row.href ? <a href={row.href}>{row.value}</a> : <span>{row.value}</span>}
+          {row.copy && (
+            <button type="button" class="copy" data-copy={row.value} hidden>
+              copy
+            </button>
+          )}
+        </dd>
+      </div>
+    ))}
+    <div class="row">
+      <dt>verify</dt>
+      <dd>
+        <span>
+          ed25519 {shortKey} · {signed ? 'signed at build' : 'signature pending'} ·{' '}
+          <a href="/openness#verification">/openness#verification</a>
+        </span>
+      </dd>
+    </div>
+  </dl>
+</aside>
+
+<script is:inline>
+  // reveal copy buttons only when JS is available
+  document.querySelectorAll('.agent-block .copy').forEach((btn) => {
+    btn.hidden = false;
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        btn.textContent = 'copied';
+        setTimeout(() => (btn.textContent = 'copy'), 1600);
+      } catch {
+        btn.textContent = 'select + ⌘C';
+      }
+    });
+  });
+</script>
+
+<style>
+  .agent-block {
+    margin-top: var(--rv-space-lg);
+    max-width: var(--rv-measure);
+    border: 1px solid var(--rv-rule);
+    border-radius: var(--rv-radius);
+    background: var(--rv-ink-deep);
+    padding: 18px 20px;
+  }
+  .head {
+    font-family: var(--rv-font-sans);
+    font-size: 11.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--rv-text-dim);
+    margin-bottom: 14px;
+  }
+  dl {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 0 16px;
+    align-items: baseline;
+  }
+  @media (max-width: 560px) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: 2px 0;
+    }
+  }
+  dt {
+    font-family: var(--rv-font-mono);
+    font-size: var(--rv-provenance-size);
+    /* dim, not faint — faint sits below AA on the ink-deep panel */
+    color: var(--rv-text-dim);
+  }
+  dd {
+    margin: 0;
+    font-family: var(--rv-font-mono);
+    font-size: var(--rv-provenance-size);
+    color: var(--rv-provenance-color);
+    overflow-wrap: anywhere;
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  dd a {
+    color: inherit;
+    border-bottom: 1px solid rgba(244, 239, 230, 0.2);
+  }
+  dd a:hover {
+    color: var(--rv-link-hover);
+    border-bottom-color: var(--rv-link-hover);
+  }
+  .copy {
+    background: transparent;
+    border: 1px solid var(--rv-rule);
+    border-radius: 4px;
+    color: var(--rv-text-dim);
+    font-family: var(--rv-font-mono);
+    font-size: 11px;
+    padding: 1px 8px;
+    cursor: pointer;
+  }
+  .copy:hover {
+    color: var(--rv-navy);
+    background: var(--rv-amber);
+    border-color: var(--rv-amber);
+  }
+</style>
