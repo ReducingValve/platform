@@ -2,10 +2,15 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Essay = CollectionEntry<'essays'>;
 
-/** Published essays, newest first. Chronological is the only order (PLAN §4c). */
+/** Published essays, newest first. Chronological is the only order (PLAN §4c);
+ *  same-day entries tie-break by issue number. */
 export async function getPublishedEssays(): Promise<Essay[]> {
   const essays = await getCollection('essays', ({ data }) => !data.draft);
-  return essays.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  return essays.sort(
+    (a, b) =>
+      b.data.date.valueOf() - a.data.date.valueOf() ||
+      (b.data.issue ?? 0) - (a.data.issue ?? 0),
+  );
 }
 
 export interface Length {
