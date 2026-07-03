@@ -16,7 +16,11 @@ export interface Length {
 }
 
 export function measure(body: string): Length {
-  const words = body.trim().split(/\s+/).filter(Boolean).length;
+  // count the prose, not presentation directives (figures, pull-quotes)
+  const prose = body
+    .replace(/^!\[[^\]]*\]\([^)]*\)\s*$/gm, '')
+    .replace(/^\[pull\][^\n]*$/gm, '');
+  const words = prose.trim().split(/\s+/).filter(Boolean).length;
   return {
     words,
     tokens: Math.round((words * 4) / 3),

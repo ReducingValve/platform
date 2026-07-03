@@ -1,25 +1,43 @@
 ---
 import { render } from 'astro:content';
+import { Picture } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
-import PageHeader from '../../components/PageHeader.astro';
+import NavBar from '../../components/NavBar.astro';
+import GenerativeBanner from '../../components/GenerativeBanner.astro';
 import Glyph from '../../components/Glyph.astro';
 import EmailCapture from '../../components/EmailCapture.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { SITE_URL, SITE_NAME, AUTHOR, LICENSE } from '../../consts';
-import { getPublishedEssays, measure, formatDate } from '../../lib/essays';
+import { getPublishedEssays, measure, formatDate, essayPath, type Essay } from '../../lib/essays';
 
 export async function getStaticPaths() {
   const essays = await getPublishedEssays();
-  return essays.map((essay) => ({ params: { slug: essay.id }, props: { essay } }));
+  return essays.map((essay, i) => ({
+    params: { slug: essay.id },
+    // list is newest-first: previous = older (i+1), next = newer (i-1)
+    props: { essay, older: essays[i + 1] ?? null, newer: essays[i - 1] ?? null },
+  }));
 }
 
-const { essay } = Astro.props;
+interface Props {
+  essay: Essay;
+  older: Essay | null;
+  newer: Essay | null;
+}
+
+const { essay, older, newer } = Astro.props;
 const { Content } = await render(essay);
 const len = measure(essay.body ?? '');
 const canonical = `${SITE_URL}/essays/${essay.id}`;
 const ogImage = `${SITE_URL}/og/${essay.id}.png`;
 const published = essay.data.date;
 const updated = essay.data.updated ?? published;
+const showBanner = essay.data.type === 'essay';
+const coverMeta = essay.data.figures?.cover;
+// cover shows the full artwork: natural aspect, capped for very tall viewports
+const bannerStyle = essay.data.banner
+  ? `aspect-ratio: ${essay.data.banner.width} / ${essay.data.banner.height}; max-height: min(82vh, 800px);`
+  : undefined;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -44,71 +62,138 @@ const jsonLd = {
 <Base title={essay.data.title} description={essay.data.dek} ogImage={ogImage} ogType="article">
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
 
-  <div class="wrap" style="--footer-measure: 680px">
-    <div class="inner">
-      <PageHeader />
+  <NavBar />
 
-      <main id="main">
-        <article>
-          <header>
-            <p class="kicker">
-              {essay.data.type}{essay.data.issue && ` · № ${essay.data.issue}`}
-            </p>
-            <h1>{essay.data.title}</h1>
-            <p class="dek">{essay.data.dek}</p>
-            <p class="meta">
-              <time datetime={published.toISOString().slice(0, 10)}>{formatDate(published)}</time>
-              {' · '}{len.words.toLocaleString('en-US')} words · ~{len.tokens.toLocaleString('en-US')} tokens · {len.minutes} min read
-            </p>
-          </header>
+  <main id="main">
+    <article>
+      {showBanner && (
+        <div class="banner" aria-hidden="true" style={bannerStyle}>
+          {essay.data.banner ? (
+            <Picture
+              src={essay.data.banner}
+              formats={['avif']}
+              fallbackFormat="webp"
+              widths={[768, 1280, 1672]}
+              sizes="100vw"
+              alt=""
+              loading="eager"
+              fetchpriority="high"
+            />
+          ) : (
+            <GenerativeBanner seed={essay.id} height={420} />
+          )}
+        </div>
+      )}
 
-          <div class="prose">
-            <Content />
+      <div class="column">
+        {showBanner && coverMeta && (
+          <div class="cover-credit">
+            {coverMeta.prompt ? (
+              <details class="fig-gen">
+                <summary>Cover: {coverMeta.credit} — prompt</summary>
+                <p class="fig-prompt">{coverMeta.prompt}</p>
+              </details>
+            ) : (
+              <span class="fig-credit">Cover: {coverMeta.credit}</span>
+            )}
           </div>
+        )}
+        <header>
+          <p class="kicker">
+            {essay.data.type}{essay.data.issue && ` · № ${essay.data.issue}`}
+          </p>
+          <h1>{essay.data.title}</h1>
+          <p class="dek">{essay.data.dek}</p>
+          <p class="meta byline">
+            By <a href="/about" class="quiet-link">{AUTHOR}</a>
+            {' · '}
+            <time datetime={published.toISOString().slice(0, 10)}>{formatDate(published)}</time>
+            {' · '}{len.words.toLocaleString('en-US')} words · ~{len.tokens.toLocaleString('en-US')} tokens · {len.minutes} min read
+          </p>
+        </header>
 
-          <div class="endmark">
-            <Glyph width={44} stroke={4} />
-          </div>
+        <div class="prose">
+          <Content />
+        </div>
 
-          <footer class="colophon">
-            <p class="meta">
-              © {published.getUTCFullYear()} {AUTHOR} · Licensed
-              <a href={LICENSE.url} rel="license" class="quiet-link">{LICENSE.label}</a>
-            </p>
-            <p class="mono provenance">
-              canonical: <a href={canonical}>{canonical}</a><br />
-              provenance: ed25519 signature pending — essays are signed when the
-              agent-readable edition ships · <a href="/openness">/openness</a>
-            </p>
-          </footer>
-        </article>
+        <div class="endmark">
+          <Glyph width={44} stroke={4} />
+        </div>
+
+        <footer class="colophon">
+          <p class="meta">
+            © {published.getUTCFullYear()} {AUTHOR} · Licensed
+            <a href={LICENSE.url} rel="license" class="quiet-link">{LICENSE.label}</a>
+          </p>
+          <p class="mono provenance">
+            canonical: <a href={canonical}>{canonical}</a><br />
+            provenance: ed25519 signature pending — essays are signed when the
+            agent-readable edition ships · <a href="/openness">/openness</a>
+          </p>
+        </footer>
+
+        {(older || newer) && (
+          <nav class="adjacent" aria-label="More essays">
+            {older && (
+              <a href={essayPath(older)} class="adj">
+                <span class="kicker">Older</span>
+                <span class="adj-title">{older.data.title}</span>
+              </a>
+            )}
+            {newer && (
+              <a href={essayPath(newer)} class="adj adj-next">
+                <span class="kicker">Newer</span>
+                <span class="adj-title">{newer.data.title}</span>
+              </a>
+            )}
+          </nav>
+        )}
 
         <section class="subscribe">
           <EmailCapture />
         </section>
-      </main>
-    </div>
+      </div>
+    </article>
+  </main>
 
-    <SiteFooter />
-  </div>
+  <SiteFooter />
 </Base>
 
 <style>
-  .wrap {
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
+  .banner {
+    /* fallback (generative art) height; real covers get a natural
+       aspect-ratio via inline style so the artwork shows in full */
+    height: clamp(200px, 32vw, 420px);
+    overflow: hidden;
+    border-bottom: 1px solid var(--rv-rule);
   }
-  .inner {
-    flex: 1;
+  .banner[style] {
+    height: auto;
     width: 100%;
-    max-width: 728px;
-    margin: 0 auto;
-    padding: 56px 24px 0;
+  }
+  .banner :global(img),
+  .banner :global(.gen-banner) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
   }
 
-  article > header {
-    margin: 84px 0 var(--rv-space-xl);
+  .column {
+    /* text column sits left of center inside a wider frame; pull-quotes
+       and wide figures reach into the right rail (--rv-rail) */
+    --rv-rail: 320px;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .cover-credit {
+    margin-top: 14px;
+  }
+
+  article > .column > header {
+    margin: 64px 0 var(--rv-space-xl);
     display: flex;
     flex-direction: column;
     gap: 22px;
@@ -129,6 +214,9 @@ const jsonLd = {
     color: var(--rv-epigraph-color);
     max-width: var(--rv-measure-quote);
     text-wrap: pretty;
+  }
+  .byline a {
+    font-family: var(--rv-font-sans);
   }
 
   .endmark {
@@ -154,7 +242,37 @@ const jsonLd = {
     border-bottom-color: var(--rv-link-hover);
   }
 
+  .adjacent {
+    margin-top: var(--rv-space-lg);
+    padding-top: 22px;
+    border-top: 1px solid var(--rv-rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 40px;
+    justify-content: space-between;
+    max-width: var(--rv-measure);
+  }
+  .adj {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 42ch;
+  }
+  .adj-next {
+    text-align: right;
+    margin-left: auto;
+  }
+  .adj-title {
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--rv-text-strong);
+    line-height: 1.35;
+  }
+  .adj:hover .adj-title {
+    color: var(--rv-link-hover);
+  }
+
   .subscribe {
-    padding: var(--rv-space-2xl) 0 88px;
+    padding: var(--rv-space-2xl) 0 24px;
   }
 </style>

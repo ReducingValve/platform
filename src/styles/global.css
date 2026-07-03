@@ -17,6 +17,10 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+:root {
+  --rv-frame: 1200px; /* outer chrome/grid container */
+}
+
 body {
   margin: 0;
   background: var(--rv-navy);
@@ -26,6 +30,19 @@ body {
   line-height: var(--rv-body-lh);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+/* riso grain: SVG-turbulence tile rendered once, repeated as texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
 }
 
 ::selection {
@@ -179,10 +196,137 @@ a:hover {
   padding: 2px 6px;
 }
 
+/* section break: a small dim valve glyph, centered */
 .prose hr {
   border: 0;
-  border-top: 1px solid var(--rv-rule);
-  margin: var(--rv-space-xl) 0;
+  height: 24px;
+  margin: var(--rv-space-xl) auto;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 44' fill='none'%3E%3Cpath d='M36 22 H80' stroke='%23E3A244' stroke-width='4' stroke-linecap='round' opacity='0.7'/%3E%3Cpath d='M6 7 L36 22 M6 37 L36 22' stroke='%23F4EFE6' stroke-width='4' stroke-linecap='round' opacity='0.45'/%3E%3C/svg%3E")
+    center / 46px no-repeat;
+}
+
+.prose .pullquote,
+.pullquote {
+  margin: var(--rv-space-lg) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* offset pull-quote: hangs in the right rail beside the text column */
+.prose .pullquote.offset {
+  float: right;
+  clear: right;
+  width: var(--rv-rail, 300px);
+  margin: 10px calc(-1 * (var(--rv-rail, 300px) + 44px)) 28px 36px;
+}
+.prose .pullquote.offset blockquote {
+  font-size: 24px;
+}
+@media (max-width: 1180px) {
+  .prose .pullquote.offset {
+    width: min(46%, 300px);
+    margin-right: 0;
+  }
+}
+@media (max-width: 640px) {
+  .prose .pullquote.offset {
+    float: none;
+    width: 100%;
+    margin: var(--rv-space-lg) 0;
+  }
+}
+
+/* breakout figure: extends into the rail beside the column */
+.prose figure.wide {
+  width: calc(100% + var(--rv-rail, 300px) + 44px);
+  max-width: calc(100vw - 48px);
+  clear: both;
+}
+
+/* drop cap on an essay's opening paragraph (essay pages only) */
+article .prose > p:first-of-type::first-letter {
+  float: left;
+  font-size: 3.4em;
+  line-height: 0.85;
+  padding: 6px 12px 0 0;
+  font-weight: 500;
+  color: var(--rv-text-strong);
+}
+
+/* figure provenance: credit summary, prompt disclosed on tap (title = hover) */
+.fig-cap {
+  display: block;
+}
+.fig-credit,
+.fig-gen summary {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: var(--rv-font-mono);
+  font-size: 12px;
+  color: var(--rv-text-dim);
+}
+.fig-gen summary {
+  cursor: pointer;
+  width: fit-content;
+  border-bottom: 1px dotted rgba(244, 239, 230, 0.35);
+  list-style: none;
+}
+.fig-gen summary::-webkit-details-marker {
+  display: none;
+}
+.fig-gen summary:hover {
+  color: var(--rv-link-hover);
+  border-bottom-color: var(--rv-link-hover);
+}
+.fig-gen[open] summary {
+  color: var(--rv-text);
+}
+.fig-prompt {
+  margin: 10px 0 0;
+  font-family: var(--rv-font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--rv-text-dim);
+  max-width: 74ch;
+}
+
+.pullquote .tick {
+  width: 64px;
+  height: 5px;
+  background: var(--rv-amber);
+}
+
+.pullquote blockquote,
+.pullquote p {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  font-style: normal;
+  font-size: var(--rv-pullquote-size);
+  line-height: var(--rv-pullquote-lh);
+  font-weight: 500;
+  color: var(--rv-text-strong);
+  max-width: 30ch;
+  text-wrap: balance;
+}
+
+.prose figure {
+  margin: var(--rv-space-lg) 0;
+}
+
+.prose figure img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--rv-radius);
+}
+
+.prose figcaption {
+  margin-top: 12px;
+  font-family: var(--rv-font-mono);
+  font-size: var(--rv-provenance-size);
+  line-height: 1.6;
+  color: var(--rv-text-dim);
 }
 
 /* ---- accessibility ---- */

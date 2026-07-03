@@ -1,0 +1,145 @@
+---
+// Global masthead bar. No JS: the About group is a native <details>
+// dropdown, keyboard-accessible out of the box. This bar is expected to
+// grow (login, collaboration) when the platform opens — add top-level
+// items sparingly; secondary destinations belong in a group like About.
+import Glyph from './Glyph.astro';
+import Wordmark from './Wordmark.astro';
+
+const aboutGroup = [
+  { label: 'About', href: '/about' },
+  { label: 'Manifesto', href: '/manifesto' },
+  { label: 'Openness', href: '/openness' },
+];
+
+// strip build.format 'file' extensions and trailing slashes before matching
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+const essaysActive = path === '/' || path.startsWith('/essays');
+const aboutActive = aboutGroup.some((l) => l.href === path);
+---
+
+<header class="masthead">
+  <div class="bar">
+    <a href="/" class="lockup" aria-label="The Reducing Valve — home">
+      <Glyph width={40} stroke={4} />
+      <Wordmark />
+    </a>
+    <nav aria-label="Sections">
+      <a
+        href="/"
+        class:list={['top-link', { active: essaysActive }]}
+        aria-current={path === '/' ? 'page' : undefined}
+      >
+        Essays
+      </a>
+      <details class="group">
+        <summary class:list={['top-link', { active: aboutActive }]}>
+          About<span class="caret" aria-hidden="true">▾</span>
+        </summary>
+        <div class="menu">
+          {aboutGroup.map((l) => (
+            <a href={l.href} class:list={{ current: path === l.href }} aria-current={path === l.href ? 'page' : undefined}>
+              {l.label}
+            </a>
+          ))}
+        </div>
+      </details>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .masthead {
+    border-bottom: 1px solid var(--rv-rule);
+    background: var(--rv-navy);
+    position: relative;
+    z-index: 10;
+  }
+  .bar {
+    max-width: var(--rv-frame, 1200px);
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 28px;
+    flex-wrap: wrap;
+  }
+  .lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .lockup:hover {
+    opacity: 0.85;
+  }
+  nav {
+    display: flex;
+    gap: 26px;
+    align-items: center;
+  }
+  .top-link {
+    font-family: var(--rv-font-sans);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rv-text-dim);
+    padding-bottom: 6px;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+  }
+  .top-link:hover {
+    color: var(--rv-text-strong);
+  }
+  .top-link.active {
+    color: var(--rv-text-strong);
+    border-bottom-color: var(--rv-amber);
+  }
+
+  .group {
+    position: relative;
+  }
+  .group summary {
+    list-style: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+  .group summary::-webkit-details-marker {
+    display: none;
+  }
+  .caret {
+    font-size: 10px;
+    transition: transform var(--rv-duration) var(--rv-ease);
+  }
+  .group[open] .caret {
+    transform: rotate(180deg);
+  }
+  .menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 12px);
+    min-width: 176px;
+    background: var(--rv-ink-deep);
+    border: 1px solid var(--rv-rule);
+    border-radius: var(--rv-radius);
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  }
+  .menu a {
+    font-family: var(--rv-font-sans);
+    font-size: 13.5px;
+    color: rgba(244, 239, 230, 0.75);
+    padding: 9px 18px;
+  }
+  .menu a:hover {
+    color: var(--rv-text-strong);
+    background: rgba(244, 239, 230, 0.05);
+  }
+  .menu a.current {
+    color: var(--rv-text-strong);
+    box-shadow: inset 2px 0 0 var(--rv-amber);
+  }
+</style>

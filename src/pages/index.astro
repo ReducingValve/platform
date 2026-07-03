@@ -1,86 +1,105 @@
 ---
-import { getImage } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import Glyph from '../components/Glyph.astro';
+import NavBar from '../components/NavBar.astro';
+import GenerativeBanner from '../components/GenerativeBanner.astro';
 import EmailCapture from '../components/EmailCapture.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import { SITE_DESCRIPTION, TAGLINE_STRIP } from '../consts';
 import { getPublishedEssays, measure, formatDate, essayPath } from '../lib/essays';
-import valveField from '../assets/valve-field.png';
 
 const essays = await getPublishedEssays();
-
-const heroAvif = await getImage({
-  src: valveField,
-  format: 'avif',
-  widths: [768, 1280, 1672],
-  quality: 55,
-});
-const heroWebp = await getImage({
-  src: valveField,
-  format: 'webp',
-  widths: [768, 1280, 1672],
-  quality: 74,
-});
+const latest = essays[0];
+const rest = essays.slice(1);
+const latestLen = latest ? measure(latest.body ?? '') : null;
 ---
 
 <Base>
-  <div class="page">
-    <picture aria-hidden="true" class="hero-art">
-      <source srcset={heroAvif.srcSet.attribute} sizes="100vw" type="image/avif" />
-      <img
-        src={heroWebp.src}
-        srcset={heroWebp.srcSet.attribute}
-        sizes="100vw"
-        alt=""
-        width={valveField.width}
-        height={valveField.height}
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-      />
-    </picture>
+  <NavBar />
 
-    <main id="main">
-      <section class="hero">
-        <div class="col">
-          <Glyph width={72} stroke={3} label="The Reducing Valve mark" />
-          <h1><em>The</em> Reducing Valve</h1>
-          <p class="bio">{SITE_DESCRIPTION}</p>
-          <p class="strip" aria-label="Agents, markets, attention">
-            {TAGLINE_STRIP.map((word, i) => (
-              <>
-                {i > 0 && <span class="dot">·</span>}
-                <span>{word}</span>
-              </>
-            ))}
+  <main id="main">
+    {latest && (
+      <section class="hero" aria-label="Latest essay">
+        <div class="hero-art" aria-hidden="true">
+          {latest.data.banner ? (
+            <Picture
+              src={latest.data.banner}
+              formats={['avif']}
+              fallbackFormat="webp"
+              widths={[768, 1280, 1672]}
+              sizes="100vw"
+              alt=""
+              loading="eager"
+              fetchpriority="high"
+            />
+          ) : (
+            <GenerativeBanner seed={latest.id} height={560} />
+          )}
+          <div class="scrim"></div>
+        </div>
+        <div class="frame hero-content">
+          <p class="kicker">
+            Latest{latest.data.issue ? ` — ${latest.data.type} № ${latest.data.issue}` : ''}
           </p>
-          <nav class="hero-links" aria-label="Site">
-            <a href="/manifesto" class="quiet-link">Manifesto</a>
-            <a href="/about" class="quiet-link">About</a>
-            <a href="/openness" class="quiet-link">Openness</a>
-          </nav>
+          <h1><a href={essayPath(latest)}>{latest.data.title}</a></h1>
+          <p class="dek">{latest.data.dek}</p>
+          <p class="meta">
+            <time datetime={latest.data.date.toISOString().slice(0, 10)}>{formatDate(latest.data.date)}</time>
+            {' · '}{latestLen!.words.toLocaleString('en-US')} words · ~{latestLen!.tokens.toLocaleString('en-US')} tokens · {latestLen!.minutes} min
+          </p>
+          <a class="read" href={essayPath(latest)}>Read the essay <span aria-hidden="true">→</span></a>
         </div>
       </section>
+    )}
 
-      <section class="essays" aria-label="Essays">
-        <div class="col">
-          <h2 class="kicker">Essays</h2>
-          <ol class="index">
-            {essays.map((essay) => {
+    <section class="about-band">
+      <div class="frame">
+        <p class="about-copy">
+          The Reducing Valve is an independent publication about a single question with many
+          disguises: when intelligence becomes abundant, who owns the filter between the world
+          and your mind? Essays on agents, markets, and attention. An independent magazine,
+          published when there’s something to add.
+        </p>
+        <nav class="about-links" aria-label="About the publication">
+          <a href="/about" class="quiet-link">About</a>
+          <a href="/manifesto" class="quiet-link">Manifesto</a>
+          <a href="/openness" class="quiet-link">Openness</a>
+        </nav>
+      </div>
+    </section>
+
+    {rest.length > 0 && (
+      <section class="index-section" aria-label="All essays">
+        <div class="frame">
+          <h2 class="kicker">All essays</h2>
+          <ol class="grid">
+            {rest.map((essay) => {
               const len = measure(essay.body ?? '');
               return (
                 <li>
-                  <article>
+                  <article class="card">
+                    <a href={essayPath(essay)} class="card-art" aria-hidden="true" tabindex="-1">
+                      {essay.data.banner ? (
+                        <Picture
+                          src={essay.data.banner}
+                          formats={['avif']}
+              fallbackFormat="webp"
+                          widths={[420, 840]}
+                          sizes="(max-width: 720px) 100vw, 33vw"
+                          alt=""
+                        />
+                      ) : (
+                        <GenerativeBanner seed={essay.id} height={400} />
+                      )}
+                    </a>
                     <p class="meta">
                       {essay.data.issue && <>№ {essay.data.issue} · </>}
                       <time datetime={essay.data.date.toISOString().slice(0, 10)}>
                         {formatDate(essay.data.date)}
                       </time>
-                      {' · '}{len.words.toLocaleString('en-US')} words · ~{len.tokens.toLocaleString('en-US')} tokens · {len.minutes} min
+                      {' · '}{len.minutes} min
                     </p>
                     <h3><a href={essayPath(essay)}>{essay.data.title}</a></h3>
-                    <p class="dek">{essay.data.dek}</p>
+                    <p class="card-dek">{essay.data.dek}</p>
                   </article>
                 </li>
               );
@@ -88,136 +107,180 @@ const heroWebp = await getImage({
           </ol>
         </div>
       </section>
+    )}
 
-      <section class="subscribe">
-        <div class="col">
-          <EmailCapture />
-        </div>
-      </section>
-    </main>
+    <section class="subscribe-band">
+      <div class="frame">
+        <EmailCapture />
+      </div>
+    </section>
+  </main>
 
-    <SiteFooter />
-  </div>
+  <SiteFooter />
 </Base>
 
 <style>
-  .page {
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
+  .frame {
+    max-width: var(--rv-frame);
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  /* ---- hero ---- */
+  .hero {
     position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: clamp(440px, 66vh, 640px);
     overflow: hidden;
-    isolation: isolate;
   }
   .hero-art {
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
   }
-  .hero-art img {
+  .hero-art :global(img),
+  .hero-art :global(.gen-banner) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center top;
+    object-position: center;
   }
-  main {
-    flex: 1;
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(11, 21, 32, 0.34);
   }
-  .col {
+  .hero-content {
+    position: relative;
+    z-index: 1;
     width: 100%;
-    max-width: 640px;
-    margin: 0 auto;
-  }
-
-  .hero {
-    min-height: 82dvh;
+    padding-top: 96px;
+    padding-bottom: 64px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: 64px 24px;
+    gap: 20px;
+    max-width: var(--rv-frame);
   }
-  .hero .col {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-  }
-  h1 {
+  .hero h1 {
     font-size: var(--rv-display-size);
     line-height: var(--rv-display-lh);
     font-weight: var(--rv-display-weight);
     letter-spacing: var(--rv-display-ls);
+    max-width: 20ch;
+    text-wrap: balance;
+  }
+  .hero h1 a {
     color: var(--rv-text-strong);
   }
-  h1 em {
-    font-style: italic;
-    font-weight: 400;
+  .hero h1 a:hover {
+    color: var(--rv-link-hover);
   }
-  .bio {
-    font-size: clamp(17px, 2.4vw, 20px);
-    line-height: 1.65;
-    max-width: 46ch;
+  .hero .dek {
+    font-style: italic;
+    font-size: clamp(17px, 2.2vw, 21px);
+    line-height: 1.6;
+    color: var(--rv-text);
+    max-width: 52ch;
     text-wrap: pretty;
   }
-  .strip {
+  .read {
     font-family: var(--rv-font-sans);
-    font-size: 12px;
-    letter-spacing: 0.26em;
-    text-transform: uppercase;
-    color: var(--rv-text-dim);
-    display: flex;
-    gap: 0.9em;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--rv-link);
+    width: fit-content;
+    border-bottom: 1px solid var(--rv-amber);
+    padding-bottom: 3px;
   }
-  .hero-links {
+  .read:hover {
+    color: var(--rv-link-hover);
+  }
+
+  /* ---- about band ---- */
+  .about-band {
+    border-bottom: 1px solid var(--rv-rule);
+  }
+  .about-band .frame {
+    padding-top: 56px;
+    padding-bottom: 56px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 64px;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .about-copy {
+    font-size: 19px;
+    line-height: 1.7;
+    max-width: 62ch;
+    text-wrap: pretty;
+    color: var(--rv-text);
+  }
+  .about-links {
     display: flex;
     gap: 28px;
-    align-items: baseline;
-    margin-top: 10px;
   }
-  .hero-links a {
+  .about-links a {
     font-family: var(--rv-font-sans);
     font-size: 13px;
     color: rgba(244, 239, 230, 0.75);
   }
 
-  .essays {
-    padding: 24px 24px 0;
+  /* ---- essay grid ---- */
+  .index-section .frame {
+    padding-top: 64px;
   }
-  .index {
+  .grid {
     list-style: none;
-    margin: 0;
+    margin: 28px 0 0;
     padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 44px 36px;
   }
-  .index li {
-    border-top: 1px solid var(--rv-rule);
-    margin-top: 22px;
-    padding-top: 22px;
-  }
-  .index article {
+  .card {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
-  .index h3 {
-    font-size: var(--rv-h2-size);
-    line-height: var(--rv-h2-lh);
-    font-weight: var(--rv-h2-weight);
+  .card-art {
+    display: block;
+    aspect-ratio: 3 / 1;
+    overflow: hidden;
+    border-radius: var(--rv-radius);
+    border: 1px solid var(--rv-rule);
   }
-  .index h3 a {
+  .card-art :global(img),
+  .card-art :global(.gen-banner) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card h3 {
+    font-size: 24px;
+    line-height: 1.25;
+    font-weight: 500;
+  }
+  .card h3 a {
     color: var(--rv-text-strong);
   }
-  .index h3 a:hover {
+  .card h3 a:hover {
     color: var(--rv-link-hover);
   }
-  .dek {
+  .card-dek {
     font-style: italic;
-    font-size: var(--rv-body-small-size);
-    line-height: var(--rv-body-small-lh);
+    font-size: 16px;
+    line-height: 1.55;
     color: var(--rv-text-dim);
-    max-width: 52ch;
     text-wrap: pretty;
   }
 
-  .subscribe {
-    padding: 72px 24px 88px;
+  /* ---- subscribe ---- */
+  .subscribe-band .frame {
+    padding-top: 88px;
+    padding-bottom: 40px;
   }
 </style>

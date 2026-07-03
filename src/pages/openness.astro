@@ -1,7 +1,8 @@
 ---
 // The openness posture, made concrete — PLAN §4b and §4c.
 import Base from '../layouts/Base.astro';
-import PageHeader from '../components/PageHeader.astro';
+import NavBar from '../components/NavBar.astro';
+import FieldBackground from '../components/FieldBackground.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { CONTACT_EMAIL, LICENSE } from '../consts';
 
@@ -44,9 +45,11 @@ const doors = [
 ---
 
 <Base title="Openness" description="Reading agents are welcome. Every door, listed.">
+  <NavBar />
+
   <div class="wrap">
+    <FieldBackground />
     <div class="inner">
-      <PageHeader />
 
       <main id="main">
         <h1 class="kicker heading">Openness</h1>
@@ -121,26 +124,25 @@ const doors = [
         </div>
       </main>
     </div>
-
-    <SiteFooter />
   </div>
+
+  <SiteFooter />
 </Base>
 
 <style>
   .wrap {
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
+    position: relative;
+    isolation: isolate;
   }
   .inner {
-    flex: 1;
+    position: relative;
     width: 100%;
     max-width: 712px;
     margin: 0 auto;
     padding: 56px 24px 88px;
   }
   .heading {
-    margin: 84px 0 0;
+    margin: 64px 0 0;
     letter-spacing: 0.28em;
   }
   .prose {

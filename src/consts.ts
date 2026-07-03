@@ -7,8 +7,9 @@ export const SITE_NAME = 'The Reducing Valve';
 export const SITE_DESCRIPTION =
   'Essays on agents, markets, and attention. An independent magazine, published when there’s something to add.';
 
-/** Banner strip, locked. */
-export const TAGLINE_STRIP = ['Agents', 'Markets', 'Attention'];
+/** Banner strip, locked — the literal string, so the text layer that
+ *  agents and copy-paste receive matches the visual layer. */
+export const TAGLINE_STRIP = 'AGENTS · MARKETS · ATTENTION';
 
 export const AUTHOR = 'Barnaba Barcellona';
 export const CONTACT_EMAIL = 'hello@thereducingvalve.com';

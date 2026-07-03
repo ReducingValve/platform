@@ -4,15 +4,18 @@
 // inserted at Phase 3]" reads as implementer instruction, so the public
 // placeholder says "published with the first signed essay" instead.
 import Base from '../layouts/Base.astro';
-import PageHeader from '../components/PageHeader.astro';
+import NavBar from '../components/NavBar.astro';
+import FieldBackground from '../components/FieldBackground.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { CONTACT_EMAIL } from '../consts';
 ---
 
 <Base title="About">
+  <NavBar />
+
   <div class="wrap">
+    <FieldBackground />
     <div class="inner">
-      <PageHeader />
 
       <main id="main">
         <h1 class="kicker heading">About</h1>
@@ -67,26 +70,25 @@ import { CONTACT_EMAIL } from '../consts';
         </div>
       </main>
     </div>
-
-    <SiteFooter />
   </div>
+
+  <SiteFooter />
 </Base>
 
 <style>
   .wrap {
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
+    position: relative;
+    isolation: isolate;
   }
   .inner {
-    flex: 1;
+    position: relative;
     width: 100%;
     max-width: 688px;
     margin: 0 auto;
     padding: 56px 24px 88px;
   }
   .heading {
-    margin: 84px 0 0;
+    margin: 64px 0 0;
     letter-spacing: 0.28em;
   }
   .epigraph {

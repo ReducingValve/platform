@@ -1,77 +1,122 @@
 ---
-import { CONTACT_EMAIL, SOCIALS } from '../consts';
+import Glyph from './Glyph.astro';
+import { SITE_DESCRIPTION, TAGLINE_STRIP, CONTACT_EMAIL, SOCIALS, LICENSE } from '../consts';
+
+const read = [
+  { label: 'Essays', href: '/' },
+  { label: 'RSS', href: '/rss.xml' },
+  { label: 'Atom', href: '/atom.xml' },
+  { label: 'JSON Feed', href: '/feed.json' },
+  { label: 'llms.txt', href: '/llms.txt' },
+];
+
+const publication = [
+  { label: 'About', href: '/about' },
+  { label: 'Manifesto', href: '/manifesto' },
+  { label: 'Openness', href: '/openness' },
+];
 ---
 
-<footer>
-  <div class="inner">
-    <div class="rows">
-      <div class="row">
-        <a href={`mailto:${CONTACT_EMAIL}`} class="quiet-link contact">{CONTACT_EMAIL}</a>
-        <nav class="socials" aria-label="Elsewhere">
-          {SOCIALS.map((s) => <a href={s.href} target="_blank" rel="noopener">{s.label}</a>)}
-        </nav>
+<footer class="site-footer">
+  <div class="frame">
+    <div class="cols">
+      <div class="identity">
+        <Glyph width={48} stroke={3.5} />
+        <p class="bio">{SITE_DESCRIPTION}</p>
+        <p class="strip">{TAGLINE_STRIP}</p>
       </div>
-      <div class="row">
-        <span class="mono doors">
-          full-text feeds: <a href="/rss.xml">rss</a> · <a href="/atom.xml">atom</a> ·
-          <a href="/feed.json">json</a> · <a href="/llms.txt">llms.txt</a> — every door listed at
-          <a href="/openness">/openness</a>
-        </span>
-        <span class="mono">no tracking · no ranking</span>
-      </div>
+      <nav class="col" aria-label="Read">
+        <h2 class="kicker">Read</h2>
+        <ul>
+          {read.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </nav>
+      <nav class="col" aria-label="Publication">
+        <h2 class="kicker">Publication</h2>
+        <ul>
+          {publication.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          <li><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></li>
+          <li class="socials">
+            {SOCIALS.map((s) => <a href={s.href} target="_blank" rel="noopener">{s.label}</a>)}
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="baseline">
+      <span class="mono">thereducingvalve.com · essays {LICENSE.label} · code MIT</span>
+      <span class="mono">no tracking · no ranking · published when there’s something to add</span>
     </div>
   </div>
 </footer>
 
 <style>
-  footer {
-    padding: 0 24px 40px;
-  }
-  .inner {
-    width: 100%;
-    max-width: var(--footer-measure, 640px);
-    margin: 0 auto;
+  .site-footer {
     border-top: 1px solid var(--rv-rule);
-    padding-top: 22px;
+    margin-top: var(--rv-space-2xl);
+    background: var(--rv-ink-deep);
   }
-  .rows {
+  .frame {
+    max-width: var(--rv-frame, 1200px);
+    margin: 0 auto;
+    padding: 56px 24px 36px;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(260px, 1.4fr) 1fr 1fr;
+    gap: 40px;
+  }
+  @media (max-width: 720px) {
+    .cols {
+      grid-template-columns: 1fr;
+    }
+  }
+  .identity {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
   }
-  .row {
+  .bio {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--rv-text-dim);
+    max-width: 34ch;
+    text-wrap: pretty;
+  }
+  .strip {
+    font-family: var(--rv-font-sans);
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--rv-text-dim);
+  }
+  .col ul {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
     display: flex;
-    flex-wrap: wrap;
-    gap: 14px 28px;
-    align-items: baseline;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 10px;
   }
-  .contact {
+  .col a {
     font-family: var(--rv-font-sans);
     font-size: 14px;
-    color: rgba(244, 239, 230, 0.75);
+    color: rgba(244, 239, 230, 0.72);
+  }
+  .col a:hover {
+    color: var(--rv-link-hover);
   }
   .socials {
     display: flex;
-    gap: 24px;
-    align-items: baseline;
+    gap: 18px;
+    margin-top: 6px;
   }
-  .socials a {
-    font-family: var(--rv-font-sans);
-    font-size: 13px;
-    letter-spacing: 0.04em;
-    color: var(--rv-text-dim);
-  }
-  .socials a:hover {
-    color: var(--rv-link-hover);
-  }
-  .doors a,
-  .mono a {
-    color: inherit;
-    border-bottom: 1px solid rgba(244, 239, 230, 0.2);
-  }
-  .mono a:hover {
-    color: var(--rv-link-hover);
-    border-bottom-color: var(--rv-link-hover);
+  .baseline {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rv-rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    justify-content: space-between;
   }
 </style>
