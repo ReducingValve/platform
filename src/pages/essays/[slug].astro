@@ -34,10 +34,6 @@ const published = essay.data.date;
 const updated = essay.data.updated ?? published;
 const showBanner = essay.data.type === 'essay';
 const coverMeta = essay.data.figures?.cover;
-// cover shows the full artwork: natural aspect, capped for very tall viewports
-const bannerStyle = essay.data.banner
-  ? `aspect-ratio: ${essay.data.banner.width} / ${essay.data.banner.height}; max-height: min(82vh, 800px);`
-  : undefined;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -66,22 +62,56 @@ const jsonLd = {
 
   <main id="main">
     <article>
-      {showBanner && (
-        <div class="banner" aria-hidden="true" style={bannerStyle}>
-          {essay.data.banner ? (
-            <Picture
-              src={essay.data.banner}
-              formats={['avif']}
-              fallbackFormat="webp"
-              widths={[768, 1280, 1672]}
-              sizes="100vw"
-              alt=""
-              loading="eager"
-              fetchpriority="high"
-            />
-          ) : (
-            <GenerativeBanner seed={essay.id} height={420} />
-          )}
+      {showBanner ? (
+        <div class="hero">
+          <div class="hero-art" aria-hidden="true">
+            {essay.data.banner ? (
+              <Picture
+                src={essay.data.banner}
+                formats={['avif']}
+                fallbackFormat="webp"
+                widths={[768, 1280, 1672]}
+                sizes="100vw"
+                alt=""
+                loading="eager"
+                fetchpriority="high"
+              />
+            ) : (
+              <GenerativeBanner seed={essay.id} height={560} />
+            )}
+            <div class="scrim"></div>
+          </div>
+          <div class="hero-frame">
+            <header>
+              <p class="kicker">
+                {essay.data.type}{essay.data.issue && ` · № ${essay.data.issue}`}
+              </p>
+              <h1>{essay.data.title}</h1>
+              <p class="dek">{essay.data.dek}</p>
+              <p class="meta byline">
+                By <a href="/about" class="quiet-link">{AUTHOR}</a>
+                {' · '}
+                <time datetime={published.toISOString().slice(0, 10)}>{formatDate(published)}</time>
+                {' · '}{len.words.toLocaleString('en-US')} words · ~{len.tokens.toLocaleString('en-US')} tokens · {len.minutes} min read
+              </p>
+            </header>
+          </div>
+        </div>
+      ) : (
+        <div class="column">
+          <header class="note-header">
+            <p class="kicker">
+              {essay.data.type}{essay.data.issue && ` · № ${essay.data.issue}`}
+            </p>
+            <h1>{essay.data.title}</h1>
+            <p class="dek">{essay.data.dek}</p>
+            <p class="meta byline">
+              By <a href="/about" class="quiet-link">{AUTHOR}</a>
+              {' · '}
+              <time datetime={published.toISOString().slice(0, 10)}>{formatDate(published)}</time>
+              {' · '}{len.words.toLocaleString('en-US')} words · ~{len.tokens.toLocaleString('en-US')} tokens · {len.minutes} min read
+            </p>
+          </header>
         </div>
       )}
 
@@ -98,21 +128,8 @@ const jsonLd = {
             )}
           </div>
         )}
-        <header>
-          <p class="kicker">
-            {essay.data.type}{essay.data.issue && ` · № ${essay.data.issue}`}
-          </p>
-          <h1>{essay.data.title}</h1>
-          <p class="dek">{essay.data.dek}</p>
-          <p class="meta byline">
-            By <a href="/about" class="quiet-link">{AUTHOR}</a>
-            {' · '}
-            <time datetime={published.toISOString().slice(0, 10)}>{formatDate(published)}</time>
-            {' · '}{len.words.toLocaleString('en-US')} words · ~{len.tokens.toLocaleString('en-US')} tokens · {len.minutes} min read
-          </p>
-        </header>
 
-        <div class="prose">
+        <div class="prose body-start">
           <Content />
         </div>
 
@@ -160,16 +177,53 @@ const jsonLd = {
 </Base>
 
 <style>
-  .banner {
-    /* fallback (generative art) height; real covers get a natural
-       aspect-ratio via inline style so the artwork shows in full */
-    height: clamp(200px, 32vw, 420px);
+  /* immersive opener: title overlays the cover art; the full artwork
+     appears again in the body as a content figure */
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: clamp(460px, 64vh, 700px);
     overflow: hidden;
     border-bottom: 1px solid var(--rv-rule);
   }
-  .banner[style] {
-    height: auto;
+  .hero-art {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .hero-art :global(img),
+  .hero-art :global(.gen-banner) {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(11, 21, 32, 0.42);
+  }
+  .hero-frame {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 110px 24px 56px;
+  }
+  .hero-frame header,
+  .note-header {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    max-width: var(--rv-measure);
+  }
+  .note-header {
+    margin: 64px 0 var(--rv-space-lg);
+  }
+  .body-start {
+    margin-top: var(--rv-space-xl);
   }
   .banner :global(img),
   .banner :global(.gen-banner) {
@@ -192,13 +246,6 @@ const jsonLd = {
     margin-top: 14px;
   }
 
-  article > .column > header {
-    margin: 64px 0 var(--rv-space-xl);
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    max-width: var(--rv-measure);
-  }
   h1 {
     font-size: var(--rv-title-size);
     line-height: var(--rv-title-lh);

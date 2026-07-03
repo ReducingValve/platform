@@ -76,7 +76,8 @@ export default function rehypeFigure() {
 
       const src = String(img.properties?.src ?? '');
       const basename = src.split('/').pop()?.replace(/\.[a-z0-9]+$/i, '') ?? '';
-      const meta = figures[basename];
+      // cover art reused in the body inherits its 'cover' provenance entry
+      const meta = figures[basename] ?? (basename === 'banner' ? figures.cover : undefined);
       if (meta?.prompt) img.properties.title = meta.prompt; // hover reveals the prompt
 
       const figcaptionChildren: ElementContent[] = [
