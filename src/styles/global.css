@@ -1,0 +1,213 @@
+/* ============================================================
+   The Reducing Valve — base styles
+   Implements tokens.css. Dark is home; no JS required to read.
+   ============================================================ */
+
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--rv-navy);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--rv-navy);
+  color: var(--rv-text);
+  font-family: var(--rv-font-serif);
+  font-size: var(--rv-body-size);
+  line-height: var(--rv-body-lh);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--rv-selection-bg);
+  color: var(--rv-selection-fg);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--rv-link);
+  text-decoration: none;
+  transition: color var(--rv-duration) var(--rv-ease), border-color var(--rv-duration) var(--rv-ease);
+}
+
+a:hover {
+  color: var(--rv-link-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--rv-amber);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---- recurring text treatments ---- */
+
+.kicker {
+  font-family: var(--rv-font-sans);
+  font-size: var(--rv-caption-size);
+  line-height: var(--rv-caption-lh);
+  font-weight: 400;
+  letter-spacing: var(--rv-caption-ls);
+  text-transform: uppercase;
+  /* dim, not faint: faint sits below AA contrast at caption sizes */
+  color: var(--rv-text-dim);
+}
+
+/* small-caps section heading (h2 on inner pages); .prose variant wins over .prose h2 */
+.section,
+.prose .section {
+  font-family: var(--rv-font-sans);
+  font-size: var(--rv-h3-size);
+  line-height: var(--rv-h3-lh);
+  font-weight: var(--rv-h3-weight);
+  letter-spacing: var(--rv-h3-ls);
+  text-transform: uppercase;
+  color: var(--rv-text-dim);
+  margin: var(--rv-space-xl) 0 var(--rv-space-sm);
+}
+
+.meta {
+  font-family: var(--rv-font-sans);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--rv-text-dim);
+}
+
+.mono {
+  font-family: var(--rv-font-mono);
+  font-size: var(--rv-provenance-size);
+  line-height: 1.7;
+  color: var(--rv-provenance-color);
+}
+
+.quiet-link {
+  color: var(--rv-text);
+  border-bottom: 1px solid rgba(244, 239, 230, 0.25);
+  padding-bottom: 2px;
+}
+
+.quiet-link:hover {
+  color: var(--rv-link-hover);
+  border-bottom-color: var(--rv-link-hover);
+}
+
+/* ---- long-form prose (essay body) ---- */
+
+.prose {
+  max-width: var(--rv-measure);
+}
+
+.prose p {
+  margin: 0 0 var(--rv-para-gap);
+  text-wrap: pretty;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.prose a {
+  color: var(--rv-text);
+  border-bottom: 1px solid rgba(244, 239, 230, 0.3);
+}
+
+.prose a:hover {
+  color: var(--rv-link-hover);
+  border-bottom-color: var(--rv-link-hover);
+}
+
+.prose strong {
+  font-weight: 600;
+  color: var(--rv-text-strong);
+}
+
+.prose h2 {
+  font-size: var(--rv-h2-size);
+  line-height: var(--rv-h2-lh);
+  font-weight: var(--rv-h2-weight);
+  color: var(--rv-text-strong);
+  margin: var(--rv-space-xl) 0 var(--rv-space-md);
+}
+
+.prose h3 {
+  font-family: var(--rv-font-sans);
+  font-size: var(--rv-h3-size);
+  line-height: var(--rv-h3-lh);
+  font-weight: var(--rv-h3-weight);
+  letter-spacing: var(--rv-h3-ls);
+  text-transform: uppercase;
+  color: var(--rv-text-dim);
+  margin: var(--rv-space-lg) 0 var(--rv-space-sm);
+}
+
+.prose blockquote {
+  margin: var(--rv-space-md) 0 var(--rv-space-md) 0;
+  padding-left: var(--rv-blockquote-indent);
+  border-left: 2px solid var(--rv-rule);
+  font-style: italic;
+  font-size: var(--rv-blockquote-size);
+  color: var(--rv-blockquote-color);
+}
+
+.prose code {
+  font-family: var(--rv-font-mono);
+  font-size: var(--rv-code-size);
+  background: var(--rv-ink-deep);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--rv-rule);
+  margin: var(--rv-space-xl) 0;
+}
+
+/* ---- accessibility ---- */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 12px;
+  z-index: 100;
+  background: var(--rv-navy);
+  color: var(--rv-paper);
+  padding: 8px 14px;
+  font-family: var(--rv-font-sans);
+  font-size: 14px;
+}
+
+.skip-link:focus {
+  left: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

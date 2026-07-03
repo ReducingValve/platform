@@ -1,0 +1,22 @@
+---
+// Typographic wordmark: Spectral, "The" in italic 400, rest in 500.
+interface Props {
+  size?: string;
+}
+const { size = '19px' } = Astro.props;
+---
+
+<span class="wordmark" style={`font-size:${size}`}><em>The</em> Reducing Valve</span>
+
+<style>
+  .wordmark {
+    font-family: var(--rv-font-serif);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--rv-text-strong);
+  }
+  .wordmark em {
+    font-style: italic;
+    font-weight: 400;
+  }
+</style>

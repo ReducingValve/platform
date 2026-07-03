@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import Glyph from '../components/Glyph.astro';
+---
+
+<Base title="Not found">
+  <main id="main" class="page">
+    <Glyph width={72} stroke={3} />
+    <p class="message">Nothing flows through this address.</p>
+    <a href="/" class="quiet-link home">Back to the valve</a>
+  </main>
+</Base>
+
+<style>
+  .page {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 24px;
+    text-align: center;
+  }
+  .message {
+    font-size: var(--rv-body-size);
+    color: var(--rv-text-dim);
+  }
+  .home {
+    font-family: var(--rv-font-sans);
+    font-size: 14px;
+  }
+</style>

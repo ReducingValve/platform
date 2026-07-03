@@ -1,0 +1,225 @@
+---
+// The openness posture, made concrete — PLAN §4b and §4c.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { CONTACT_EMAIL, LICENSE } from '../consts';
+
+const doors = [
+  {
+    name: 'Read here',
+    detail:
+      'Static, semantic HTML — every page readable with JavaScript off, at stable canonical URLs. No paywall, no interstitials, no cookie banner (there are no cookies).',
+  },
+  {
+    name: 'Reader tools',
+    detail: 'Full-text feeds, never truncated: RSS, Atom, and JSON Feed.',
+    links: [
+      { label: '/rss.xml', href: '/rss.xml' },
+      { label: '/atom.xml', href: '/atom.xml' },
+      { label: '/feed.json', href: '/feed.json' },
+    ],
+  },
+  {
+    name: 'Programs',
+    detail:
+      'JSON-LD Article data on every essay, a sitemap, and llms.txt at the root. Word and token counts are published per essay.',
+    links: [
+      { label: '/llms.txt', href: '/llms.txt' },
+      { label: '/sitemap-index.xml', href: '/sitemap-index.xml' },
+    ],
+  },
+  {
+    name: 'Crawlers',
+    detail:
+      'robots.txt welcomes AI crawlers by name — GPTBot, ClaudeBot, Claude-Web, PerplexityBot, CCBot, Google-Extended — rather than merely tolerating them.',
+    links: [{ label: '/robots.txt', href: '/robots.txt' }],
+  },
+  {
+    name: 'Agents',
+    detail:
+      'A structured content API and an MCP endpoint are next: title, abstract, claims, references, full text, and an Ed25519 provenance signature per essay. If you are building a reading agent, this door is being built for you.',
+  },
+];
+---
+
+<Base title="Openness" description="Reading agents are welcome. Every door, listed.">
+  <div class="wrap">
+    <div class="inner">
+      <PageHeader />
+
+      <main id="main">
+        <h1 class="kicker heading">Openness</h1>
+
+        <div class="prose lead">
+          <p>
+            This publication is written for two audiences: human readers and the reading agents
+            they send. Both get a first-class door. Nothing here is enclosed against machines —
+            openness to reading, human or automated, is the posture, and provenance rather than
+            enclosure is how it stays honest.
+          </p>
+        </div>
+
+        <figure class="pullquote">
+          <span class="tick" aria-hidden="true"></span>
+          <blockquote>
+            We don’t ask what wrote it. We ask what it adds, and who stands behind it.
+          </blockquote>
+        </figure>
+
+        <h2 class="section">The doors</h2>
+        <ul class="doors">
+          {doors.map((door) => (
+            <li>
+              <span class="name">{door.name}</span>
+              <div class="detail">
+                <p>{door.detail}</p>
+                {door.links && (
+                  <p class="mono links">
+                    {door.links.map((l, i) => (
+                      <>
+                        {i > 0 && ' · '}
+                        <a href={l.href}>{l.label}</a>
+                      </>
+                    ))}
+                  </p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <h2 class="section">License</h2>
+        <div class="prose">
+          <p>
+            Essays are licensed
+            <a href={LICENSE.url} rel="license" class="quiet-link">{LICENSE.label}</a> — read,
+            quote, translate, and share them freely with attribution; commercial reuse needs a
+            note first. The site’s code is MIT. Use of essays as training data is accepted as a
+            consequence of publishing openly; the mitigation is provenance — signatures and
+            canonical URLs — not walls.
+          </p>
+        </div>
+
+        <h2 class="section">What gets counted</h2>
+        <div class="prose">
+          <p>
+            Nothing is counted yet. When reads are counted, it will be aggregate only, the two
+            doors tallied separately: read by <em>N</em> humans and <em>M</em> agents. No
+            cookies, no fingerprints, no per-reader records — ever. Counts will never appear on
+            index pages, never order anything, and will never be a sort key. There is no
+            popularity sort here, and there never will be — essays are listed in the order they
+            were written, which is the only order that means anything.
+          </p>
+        </div>
+
+        <div class="prose contact">
+          <p>
+            Found a door that sticks?
+            <a href={`mailto:${CONTACT_EMAIL}`} class="quiet-link">{CONTACT_EMAIL}</a>
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <SiteFooter />
+  </div>
+</Base>
+
+<style>
+  .wrap {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .inner {
+    flex: 1;
+    width: 100%;
+    max-width: 712px;
+    margin: 0 auto;
+    padding: 56px 24px 88px;
+  }
+  .heading {
+    margin: 84px 0 0;
+    letter-spacing: 0.28em;
+  }
+  .prose {
+    font-size: 19px;
+  }
+  .lead {
+    margin-top: 36px;
+  }
+
+  .pullquote {
+    margin: var(--rv-space-lg) 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .tick {
+    width: 64px;
+    height: 5px;
+    background: var(--rv-amber);
+  }
+  .pullquote blockquote {
+    margin: 0;
+    font-size: var(--rv-pullquote-size);
+    line-height: var(--rv-pullquote-lh);
+    font-weight: 500;
+    color: var(--rv-text-strong);
+    max-width: 24ch;
+    text-wrap: balance;
+  }
+
+  .doors {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .doors li {
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    gap: 0 24px;
+    border-top: 1px solid var(--rv-rule);
+    padding: 20px 0;
+  }
+  @media (max-width: 560px) {
+    .doors li {
+      grid-template-columns: 1fr;
+      gap: 8px 0;
+    }
+  }
+  .name {
+    font-family: var(--rv-font-sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--rv-text-strong);
+    padding-top: 4px;
+  }
+  .detail {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .detail p {
+    font-size: 17px;
+    line-height: 1.65;
+    max-width: 58ch;
+    text-wrap: pretty;
+  }
+  .links a {
+    color: inherit;
+    border-bottom: 1px solid rgba(244, 239, 230, 0.2);
+  }
+  .links a:hover {
+    color: var(--rv-link-hover);
+    border-bottom-color: var(--rv-link-hover);
+  }
+
+  .contact {
+    margin-top: var(--rv-space-xl);
+  }
+</style>

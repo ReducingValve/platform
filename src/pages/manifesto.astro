@@ -1,0 +1,149 @@
+---
+// Copy is locked in reducing-valve-manifesto.md — do not rephrase.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Glyph from '../components/Glyph.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { CONTACT_EMAIL } from '../consts';
+
+const commitments = [
+  {
+    title: 'The reader owns the valve.',
+    body: 'A feed should be a program its reader owns: your model, your rules, your rhythm. This publication will never rank, recommend, or optimize anything for you. It publishes; what reaches you is your instrument’s decision.',
+  },
+  {
+    title: 'Published for two audiences.',
+    body: 'Every essay ships in human form and in machine form — structured, cryptographically signed, and served through an open interface — so that your reading agent can come here on your behalf. A publication that argues for agent-side reading must be readable by agents, or it is only decoration.',
+  },
+  {
+    title: 'Provenance, not policing.',
+    body: 'We attest what a thing is and who stands behind it. Whether it enters your feed is your agent’s judgment, by your values, not our policy. There is no global moderation decision here to fight over, and there never will be.',
+  },
+  {
+    title: 'Increment over volume.',
+    body: 'The pollutant of this era is not machine writing; it is redundancy — volume added without anything added. So there is no schedule. An essay appears when there is something to add, and nothing appears otherwise. Silence is a feature of the format.',
+  },
+  {
+    title: 'The infrastructure stays neutral.',
+    body: 'As The Reducing Valve opens to other writers and other builders — and it will — the platform beneath it remains a common carrier: never a party to the content, never a keeper of readers’ attention data, owner of nothing but the grammar the participants speak.',
+  },
+];
+---
+
+<Base title="Manifesto">
+  <div class="wrap">
+    <div class="inner">
+      <PageHeader />
+
+      <main id="main">
+        <h1 class="kicker heading">Manifesto</h1>
+
+        <div class="prose opening">
+          <p>
+            The Reducing Valve begins as the smallest possible thing: one person writing essays,
+            at no particular cadence, about what software agents are doing to our markets and
+            our attention.
+          </p>
+          <p>It does not intend to stay that small.</p>
+          <p>
+            The name comes from Huxley, who described the brain as a reducing valve: an organ
+            whose job is not to produce experience but to protect it, narrowing everything that
+            could be perceived down to the trickle a mind can use. That valve is now being
+            rebuilt in software, by whoever gets there first, and the only question that will
+            matter for the next decade of reading, working, and knowing is who owns it. We think
+            the answer should be you.
+          </p>
+          <p>
+            So this publication is also a prototype of the thing it argues for, and it holds
+            itself to five commitments.
+          </p>
+        </div>
+
+        <ol class="commitments">
+          {commitments.map((c, i) => (
+            <li>
+              <span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <p><strong>{c.title}</strong> {c.body}</p>
+            </li>
+          ))}
+        </ol>
+
+        <div class="prose closing">
+          <p>
+            Where this goes, in order: a magazine; then a masthead that others write under; then
+            an open interface that any publication can adopt and any reading agent can speak.
+            Because the valve, in the end, is not this website and was never going to be. It is
+            the layer between you and everything, and it should answer to no one but you.
+          </p>
+          <p>
+            If you want to write toward this, or build toward it:{' '}
+            <a href={`mailto:${CONTACT_EMAIL}`} class="quiet-link">{CONTACT_EMAIL}</a>.
+          </p>
+        </div>
+
+        <div class="endmark">
+          <Glyph width={44} stroke={4} />
+        </div>
+      </main>
+    </div>
+
+    <SiteFooter />
+  </div>
+</Base>
+
+<style>
+  .wrap {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .inner {
+    flex: 1;
+    width: 100%;
+    max-width: 712px;
+    margin: 0 auto;
+    padding: 56px 24px 88px;
+  }
+  .heading {
+    margin: 84px 0 0;
+    letter-spacing: 0.28em;
+  }
+  .prose {
+    font-size: 19px;
+  }
+  .opening {
+    margin-top: 36px;
+  }
+  .commitments {
+    list-style: none;
+    margin: var(--rv-space-lg) 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+  .commitments li {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 0 18px;
+  }
+  .num {
+    font-family: var(--rv-font-mono);
+    font-size: 13px;
+    color: var(--rv-amber);
+    padding-top: 7px;
+  }
+  .commitments p {
+    font-size: 19px;
+    line-height: 1.75;
+    max-width: 60ch;
+    text-wrap: pretty;
+  }
+  .commitments strong {
+    font-weight: 600;
+    color: var(--rv-text-strong);
+  }
+  .endmark {
+    margin-top: 72px;
+  }
+</style>

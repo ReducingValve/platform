@@ -1,0 +1,223 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Glyph from '../components/Glyph.astro';
+import EmailCapture from '../components/EmailCapture.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { SITE_DESCRIPTION, TAGLINE_STRIP } from '../consts';
+import { getPublishedEssays, measure, formatDate, essayPath } from '../lib/essays';
+import valveField from '../assets/valve-field.png';
+
+const essays = await getPublishedEssays();
+
+const heroAvif = await getImage({
+  src: valveField,
+  format: 'avif',
+  widths: [768, 1280, 1672],
+  quality: 55,
+});
+const heroWebp = await getImage({
+  src: valveField,
+  format: 'webp',
+  widths: [768, 1280, 1672],
+  quality: 74,
+});
+---
+
+<Base>
+  <div class="page">
+    <picture aria-hidden="true" class="hero-art">
+      <source srcset={heroAvif.srcSet.attribute} sizes="100vw" type="image/avif" />
+      <img
+        src={heroWebp.src}
+        srcset={heroWebp.srcSet.attribute}
+        sizes="100vw"
+        alt=""
+        width={valveField.width}
+        height={valveField.height}
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
+
+    <main id="main">
+      <section class="hero">
+        <div class="col">
+          <Glyph width={72} stroke={3} label="The Reducing Valve mark" />
+          <h1><em>The</em> Reducing Valve</h1>
+          <p class="bio">{SITE_DESCRIPTION}</p>
+          <p class="strip" aria-label="Agents, markets, attention">
+            {TAGLINE_STRIP.map((word, i) => (
+              <>
+                {i > 0 && <span class="dot">·</span>}
+                <span>{word}</span>
+              </>
+            ))}
+          </p>
+          <nav class="hero-links" aria-label="Site">
+            <a href="/manifesto" class="quiet-link">Manifesto</a>
+            <a href="/about" class="quiet-link">About</a>
+            <a href="/openness" class="quiet-link">Openness</a>
+          </nav>
+        </div>
+      </section>
+
+      <section class="essays" aria-label="Essays">
+        <div class="col">
+          <h2 class="kicker">Essays</h2>
+          <ol class="index">
+            {essays.map((essay) => {
+              const len = measure(essay.body ?? '');
+              return (
+                <li>
+                  <article>
+                    <p class="meta">
+                      {essay.data.issue && <>№ {essay.data.issue} · </>}
+                      <time datetime={essay.data.date.toISOString().slice(0, 10)}>
+                        {formatDate(essay.data.date)}
+                      </time>
+                      {' · '}{len.words.toLocaleString('en-US')} words · ~{len.tokens.toLocaleString('en-US')} tokens · {len.minutes} min
+                    </p>
+                    <h3><a href={essayPath(essay)}>{essay.data.title}</a></h3>
+                    <p class="dek">{essay.data.dek}</p>
+                  </article>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </section>
+
+      <section class="subscribe">
+        <div class="col">
+          <EmailCapture />
+        </div>
+      </section>
+    </main>
+
+    <SiteFooter />
+  </div>
+</Base>
+
+<style>
+  .page {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero-art {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .hero-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+  main {
+    flex: 1;
+  }
+  .col {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .hero {
+    min-height: 82dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 64px 24px;
+  }
+  .hero .col {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+  h1 {
+    font-size: var(--rv-display-size);
+    line-height: var(--rv-display-lh);
+    font-weight: var(--rv-display-weight);
+    letter-spacing: var(--rv-display-ls);
+    color: var(--rv-text-strong);
+  }
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+  }
+  .bio {
+    font-size: clamp(17px, 2.4vw, 20px);
+    line-height: 1.65;
+    max-width: 46ch;
+    text-wrap: pretty;
+  }
+  .strip {
+    font-family: var(--rv-font-sans);
+    font-size: 12px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--rv-text-dim);
+    display: flex;
+    gap: 0.9em;
+  }
+  .hero-links {
+    display: flex;
+    gap: 28px;
+    align-items: baseline;
+    margin-top: 10px;
+  }
+  .hero-links a {
+    font-family: var(--rv-font-sans);
+    font-size: 13px;
+    color: rgba(244, 239, 230, 0.75);
+  }
+
+  .essays {
+    padding: 24px 24px 0;
+  }
+  .index {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .index li {
+    border-top: 1px solid var(--rv-rule);
+    margin-top: 22px;
+    padding-top: 22px;
+  }
+  .index article {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .index h3 {
+    font-size: var(--rv-h2-size);
+    line-height: var(--rv-h2-lh);
+    font-weight: var(--rv-h2-weight);
+  }
+  .index h3 a {
+    color: var(--rv-text-strong);
+  }
+  .index h3 a:hover {
+    color: var(--rv-link-hover);
+  }
+  .dek {
+    font-style: italic;
+    font-size: var(--rv-body-small-size);
+    line-height: var(--rv-body-small-lh);
+    color: var(--rv-text-dim);
+    max-width: 52ch;
+    text-wrap: pretty;
+  }
+
+  .subscribe {
+    padding: 72px 24px 88px;
+  }
+</style>

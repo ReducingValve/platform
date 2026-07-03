@@ -1,0 +1,121 @@
+---
+// Copy is locked in reducing-valve-identity-kit.md — do not rephrase.
+// One deliberate adaptation: the kit's key slot "[Ed25519 public key —
+// inserted at Phase 3]" reads as implementer instruction, so the public
+// placeholder says "published with the first signed essay" instead.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { CONTACT_EMAIL } from '../consts';
+---
+
+<Base title="About">
+  <div class="wrap">
+    <div class="inner">
+      <PageHeader />
+
+      <main id="main">
+        <h1 class="kicker heading">About</h1>
+
+        <blockquote class="epigraph">
+          <p>
+            “…funnelled through the reducing valve of the brain and nervous system.”
+          </p>
+          <cite>— Aldous Huxley, <em>The Doors of Perception</em></cite>
+        </blockquote>
+
+        <div class="prose">
+          <p>
+            The Reducing Valve is an independent publication about a single question with many
+            disguises: when intelligence becomes abundant, who owns the filter between the world
+            and your mind?
+          </p>
+          <p>
+            It covers the agents that will apply for jobs, read feeds, and negotiate on our
+            behalf; the platforms and protocols they’ll run on; and the quiet economics
+            underneath both, in which employment, attention, and export controls turn out to be
+            the same transaction — the purchase of exclusive access to intelligence. One long
+            essay a month, occasional shorter notes. Analysis over outrage; mechanics over
+            villains.
+          </p>
+          <p>
+            The publication practices what it argues. Every essay is published in a structured,
+            machine-readable form alongside the human one, carries a cryptographic signature so
+            its provenance can be verified by anyone, and is served to reading agents through an
+            open API. If you’ve built a valve of your own, point it here.
+          </p>
+
+          <h2 class="section">The author</h2>
+          <p>
+            Barnaba Barcellona is an AI architect working on enterprise agent systems, based in
+            Barcelona. Before that: fine arts, professional kitchens in Copenhagen, and an
+            unreasonable number of side projects. He writes here in a personal capacity;
+            opinions are his own and not those of any employer.
+          </p>
+
+          <h2 class="section">Provenance</h2>
+          <p>
+            Essays are signed at build time with the key below. Verification instructions live
+            in the footer of every essay.
+          </p>
+          <p class="mono key">[ed25519 public key — published with the first signed essay]</p>
+
+          <h2 class="section">Contact</h2>
+          <p>
+            <a href={`mailto:${CONTACT_EMAIL}`} class="quiet-link">{CONTACT_EMAIL}</a>
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <SiteFooter />
+  </div>
+</Base>
+
+<style>
+  .wrap {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .inner {
+    flex: 1;
+    width: 100%;
+    max-width: 688px;
+    margin: 0 auto;
+    padding: 56px 24px 88px;
+  }
+  .heading {
+    margin: 84px 0 0;
+    letter-spacing: 0.28em;
+  }
+  .epigraph {
+    margin: 40px 0 var(--rv-space-lg);
+    max-width: var(--rv-measure-quote);
+    font-style: italic;
+    font-size: var(--rv-epigraph-size);
+    line-height: 1.6;
+    color: var(--rv-epigraph-color);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .epigraph cite {
+    font-style: normal;
+    font-family: var(--rv-font-sans);
+    font-size: 13px;
+    color: var(--rv-text-dim);
+  }
+  .epigraph cite em {
+    font-style: italic;
+  }
+  .prose {
+    font-size: 19px;
+  }
+  .key {
+    background: var(--rv-ink-deep);
+    border-radius: var(--rv-radius);
+    padding: 14px 18px;
+    overflow-wrap: anywhere;
+  }
+</style>

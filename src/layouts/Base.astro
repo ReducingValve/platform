@@ -1,0 +1,66 @@
+---
+import '@fontsource/spectral/400.css';
+import '@fontsource/spectral/400-italic.css';
+import '@fontsource/spectral/500.css';
+import '@fontsource/spectral/600.css';
+import '@fontsource/instrument-sans/400.css';
+import '@fontsource/instrument-sans/500.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '../styles/global.css';
+import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  ogImage = `${SITE_URL}/og/default.png`,
+  ogType = 'website',
+} = Astro.props;
+
+const pageTitle = title ? `${title} — ${SITE_NAME}` : SITE_NAME;
+const canonical = new URL(Astro.url.pathname, SITE_URL).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Barnaba Barcellona" />
+    <meta name="theme-color" content="#101D2E" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE_NAME} href={`${SITE_URL}/rss.xml`} />
+    <link rel="alternate" type="application/atom+xml" title={SITE_NAME} href={`${SITE_URL}/atom.xml`} />
+    <link rel="alternate" type="application/feed+json" title={SITE_NAME} href={`${SITE_URL}/feed.json`} />
+
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title ?? SITE_NAME} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title ?? SITE_NAME} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <slot name="head" />
+    <!-- Cloudflare Web Analytics (cookieless): paste the beacon snippet here at deploy. -->
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <slot />
+  </body>
+</html>

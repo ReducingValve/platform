@@ -1,0 +1,105 @@
+/* ============================================================
+   The Reducing Valve — design tokens · v1
+   thereducingvalve.com
+
+   Consumed by the Astro build. Dark is home: tokens assume the
+   navy ground. All type set as type; no text in imagery.
+
+   Fonts (open-license, self-host all three):
+   - Spectral        400, 500, 600 + 400 italic   (display + body serif)
+   - Instrument Sans 400, 500                     (UI grotesque)
+   - IBM Plex Mono   400                          (code, provenance)
+
+   Rule of the palette: cold ground, paper text, exactly ONE warm
+   element (amber) per composition.
+   ============================================================ */
+
+:root {
+  /* ---- color · core ---- */
+  --rv-navy:      #101D2E;                    /* ground — dark is home */
+  --rv-paper:     #F4EFE6;                    /* text on dark, light lockup ground */
+  --rv-amber:     #E3A244;                    /* the signal — single warm accent */
+  --rv-slate:     #4A5A72;                    /* supporting neutral (strokes, diagrams) */
+  --rv-ink-deep:  #0B1520;                    /* recessed panels, code background */
+
+  /* ---- color · functional ---- */
+  --rv-text:        rgba(244, 239, 230, 0.88);  /* body on navy — AA at 19px+ */
+  --rv-text-strong: var(--rv-paper);            /* headings, strong */
+  --rv-text-dim:    rgba(244, 239, 230, 0.55);  /* captions, meta */
+  --rv-text-faint:  rgba(244, 239, 230, 0.45);  /* ghosted UI only — below AA for text at caption sizes */
+  --rv-link:        #E9B95F;                    /* links on navy */
+  --rv-link-hover:  #F2CE85;
+  --rv-rule:        rgba(244, 239, 230, 0.16);  /* dividers, hairlines */
+  --rv-selection-bg: var(--rv-amber);
+  --rv-selection-fg: var(--rv-navy);
+
+  /* ---- type · families ---- */
+  --rv-font-serif: "Spectral", Georgia, "Times New Roman", serif;
+  --rv-font-sans:  "Instrument Sans", -apple-system, "Segoe UI", sans-serif;
+  --rv-font-mono:  "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+
+  /* ---- type · scale (long-form reading) ---- */
+  --rv-display-size:   clamp(38px, 6vw, 54px);  /* wordmark, landing */
+  --rv-display-lh:     1.08;
+  --rv-display-weight: 500;
+  --rv-display-ls:     -0.01em;
+
+  --rv-title-size:     clamp(32px, 5vw, 44px);  /* h1 — essay title */
+  --rv-title-lh:       1.15;
+  --rv-title-weight:   500;
+
+  --rv-h2-size:        27px;
+  --rv-h2-lh:          1.3;
+  --rv-h2-weight:      500;
+
+  --rv-h3-size:        15px;                    /* small-caps grotesque */
+  --rv-h3-lh:          1.4;
+  --rv-h3-weight:      500;
+  --rv-h3-ls:          0.12em;                  /* + uppercase */
+
+  --rv-body-size:      20px;                    /* essay body, ~19–21px target */
+  --rv-body-lh:        1.75;
+  --rv-body-small-size: 17px;                   /* asides, meta paragraphs */
+  --rv-body-small-lh:  1.65;
+
+  --rv-caption-size:   13px;                    /* kickers, figure captions */
+  --rv-caption-lh:     1.5;
+  --rv-caption-ls:     0.14em;                  /* + uppercase, sans */
+
+  --rv-code-size:      14px;
+  --rv-code-lh:        1.6;
+
+  /* ---- layout ---- */
+  --rv-measure:        66ch;                    /* essay measure, ~65–70ch */
+  --rv-measure-quote:  50ch;                    /* epigraph, pull-quote */
+  --rv-para-gap:       28px;                    /* between paragraphs */
+
+  --rv-space-xs:  8px;
+  --rv-space-sm:  16px;
+  --rv-space-md:  28px;
+  --rv-space-lg:  48px;
+  --rv-space-xl:  72px;
+  --rv-space-2xl: 110px;                        /* section breaks */
+
+  --rv-radius:      8px;                        /* code blocks, panels */
+  --rv-radius-tile: 14px;                       /* avatar tiles, cards */
+
+  /* ---- components ---- */
+  --rv-blockquote-size:   20px;                 /* italic serif, indented */
+  --rv-blockquote-indent: 28px;
+  --rv-blockquote-color:  rgba(244, 239, 230, 0.78);
+
+  --rv-epigraph-size:  20px;                    /* italic serif, top of essay */
+  --rv-epigraph-color: rgba(244, 239, 230, 0.7);
+
+  --rv-pullquote-size:   28px;                  /* serif 500, amber tick above */
+  --rv-pullquote-lh:     1.35;
+  --rv-pullquote-tick:   64px 5px;              /* width height of amber rule */
+
+  --rv-provenance-size:  12.5px;                /* mono, footer signature line */
+  --rv-provenance-color: rgba(244, 239, 230, 0.5);
+
+  /* ---- motion ---- */
+  --rv-ease:     cubic-bezier(0.25, 0.1, 0.25, 1);
+  --rv-duration: 120ms;                         /* link hovers, small transitions */
+}

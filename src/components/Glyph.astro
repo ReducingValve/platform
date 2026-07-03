@@ -1,0 +1,25 @@
+---
+// The valve mark: two paper strokes converging into one amber line.
+// Reads as a funnel and as a terminal prompt (>—). Geometry is the
+// v2 redraw from the landing design; keep proportions if resizing.
+interface Props {
+  width?: number;
+  stroke?: number;
+  label?: string;
+}
+const { width = 72, stroke = 3, label } = Astro.props;
+const height = Math.round((width * 44) / 84);
+---
+
+<svg
+  width={width}
+  height={height}
+  viewBox="0 0 84 44"
+  fill="none"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <path d="M36 22 H80" stroke="#E3A244" stroke-width={stroke} stroke-linecap="round"></path>
+  <path d="M6 7 L36 22 M6 37 L36 22" stroke="#F4EFE6" stroke-width={stroke} stroke-linecap="round"></path>
+</svg>

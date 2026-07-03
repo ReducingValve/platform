@@ -1,0 +1,160 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import Glyph from '../../components/Glyph.astro';
+import EmailCapture from '../../components/EmailCapture.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { SITE_URL, SITE_NAME, AUTHOR, LICENSE } from '../../consts';
+import { getPublishedEssays, measure, formatDate } from '../../lib/essays';
+
+export async function getStaticPaths() {
+  const essays = await getPublishedEssays();
+  return essays.map((essay) => ({ params: { slug: essay.id }, props: { essay } }));
+}
+
+const { essay } = Astro.props;
+const { Content } = await render(essay);
+const len = measure(essay.body ?? '');
+const canonical = `${SITE_URL}/essays/${essay.id}`;
+const ogImage = `${SITE_URL}/og/${essay.id}.png`;
+const published = essay.data.date;
+const updated = essay.data.updated ?? published;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: essay.data.title,
+  description: essay.data.dek,
+  datePublished: published.toISOString(),
+  dateModified: updated.toISOString(),
+  author: { '@type': 'Person', name: AUTHOR, url: `${SITE_URL}/about` },
+  publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL, logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.svg` } },
+  mainEntityOfPage: canonical,
+  url: canonical,
+  image: ogImage,
+  wordCount: len.words,
+  keywords: essay.data.tags.join(', '),
+  license: LICENSE.url,
+  isAccessibleForFree: true,
+  inLanguage: 'en',
+};
+---
+
+<Base title={essay.data.title} description={essay.data.dek} ogImage={ogImage} ogType="article">
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+  <div class="wrap" style="--footer-measure: 680px">
+    <div class="inner">
+      <PageHeader />
+
+      <main id="main">
+        <article>
+          <header>
+            <p class="kicker">
+              {essay.data.type}{essay.data.issue && ` · № ${essay.data.issue}`}
+            </p>
+            <h1>{essay.data.title}</h1>
+            <p class="dek">{essay.data.dek}</p>
+            <p class="meta">
+              <time datetime={published.toISOString().slice(0, 10)}>{formatDate(published)}</time>
+              {' · '}{len.words.toLocaleString('en-US')} words · ~{len.tokens.toLocaleString('en-US')} tokens · {len.minutes} min read
+            </p>
+          </header>
+
+          <div class="prose">
+            <Content />
+          </div>
+
+          <div class="endmark">
+            <Glyph width={44} stroke={4} />
+          </div>
+
+          <footer class="colophon">
+            <p class="meta">
+              © {published.getUTCFullYear()} {AUTHOR} · Licensed
+              <a href={LICENSE.url} rel="license" class="quiet-link">{LICENSE.label}</a>
+            </p>
+            <p class="mono provenance">
+              canonical: <a href={canonical}>{canonical}</a><br />
+              provenance: ed25519 signature pending — essays are signed when the
+              agent-readable edition ships · <a href="/openness">/openness</a>
+            </p>
+          </footer>
+        </article>
+
+        <section class="subscribe">
+          <EmailCapture />
+        </section>
+      </main>
+    </div>
+
+    <SiteFooter />
+  </div>
+</Base>
+
+<style>
+  .wrap {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .inner {
+    flex: 1;
+    width: 100%;
+    max-width: 728px;
+    margin: 0 auto;
+    padding: 56px 24px 0;
+  }
+
+  article > header {
+    margin: 84px 0 var(--rv-space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    max-width: var(--rv-measure);
+  }
+  h1 {
+    font-size: var(--rv-title-size);
+    line-height: var(--rv-title-lh);
+    font-weight: var(--rv-title-weight);
+    color: var(--rv-text-strong);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .dek {
+    font-style: italic;
+    font-size: var(--rv-epigraph-size);
+    line-height: 1.6;
+    color: var(--rv-epigraph-color);
+    max-width: var(--rv-measure-quote);
+    text-wrap: pretty;
+  }
+
+  .endmark {
+    margin: var(--rv-space-xl) 0 0;
+  }
+
+  .colophon {
+    margin-top: var(--rv-space-lg);
+    padding-top: 22px;
+    border-top: 1px solid var(--rv-rule);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: var(--rv-measure);
+  }
+  .provenance a {
+    color: inherit;
+    border-bottom: 1px solid rgba(244, 239, 230, 0.2);
+    overflow-wrap: anywhere;
+  }
+  .provenance a:hover {
+    color: var(--rv-link-hover);
+    border-bottom-color: var(--rv-link-hover);
+  }
+
+  .subscribe {
+    padding: var(--rv-space-2xl) 0 88px;
+  }
+</style>

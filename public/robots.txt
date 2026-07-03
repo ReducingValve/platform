@@ -1,0 +1,26 @@
+# The Reducing Valve — thereducingvalve.com
+# Reading agents are welcome. A better door: https://thereducingvalve.com/openness
+
+User-agent: *
+Allow: /
+
+# Named welcomes, so the posture is unambiguous.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://thereducingvalve.com/sitemap-index.xml

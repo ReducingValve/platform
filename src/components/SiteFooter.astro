@@ -1,0 +1,77 @@
+---
+import { CONTACT_EMAIL, SOCIALS } from '../consts';
+---
+
+<footer>
+  <div class="inner">
+    <div class="rows">
+      <div class="row">
+        <a href={`mailto:${CONTACT_EMAIL}`} class="quiet-link contact">{CONTACT_EMAIL}</a>
+        <nav class="socials" aria-label="Elsewhere">
+          {SOCIALS.map((s) => <a href={s.href} target="_blank" rel="noopener">{s.label}</a>)}
+        </nav>
+      </div>
+      <div class="row">
+        <span class="mono doors">
+          full-text feeds: <a href="/rss.xml">rss</a> · <a href="/atom.xml">atom</a> ·
+          <a href="/feed.json">json</a> · <a href="/llms.txt">llms.txt</a> — every door listed at
+          <a href="/openness">/openness</a>
+        </span>
+        <span class="mono">no tracking · no ranking</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer {
+    padding: 0 24px 40px;
+  }
+  .inner {
+    width: 100%;
+    max-width: var(--footer-measure, 640px);
+    margin: 0 auto;
+    border-top: 1px solid var(--rv-rule);
+    padding-top: 22px;
+  }
+  .rows {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 28px;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .contact {
+    font-family: var(--rv-font-sans);
+    font-size: 14px;
+    color: rgba(244, 239, 230, 0.75);
+  }
+  .socials {
+    display: flex;
+    gap: 24px;
+    align-items: baseline;
+  }
+  .socials a {
+    font-family: var(--rv-font-sans);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--rv-text-dim);
+  }
+  .socials a:hover {
+    color: var(--rv-link-hover);
+  }
+  .doors a,
+  .mono a {
+    color: inherit;
+    border-bottom: 1px solid rgba(244, 239, 230, 0.2);
+  }
+  .mono a:hover {
+    color: var(--rv-link-hover);
+    border-bottom-color: var(--rv-link-hover);
+  }
+</style>
