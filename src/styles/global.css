@@ -136,6 +136,13 @@ a:hover {
   max-width: var(--rv-measure);
 }
 
+/* contain floated pull-quotes so end-matter never collides */
+.prose::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
 .prose p {
   margin: 0 0 var(--rv-para-gap);
   text-wrap: pretty;
