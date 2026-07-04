@@ -195,6 +195,19 @@ a:hover {
   color: var(--rv-blockquote-color);
 }
 
+.prose ul,
+.prose ol {
+  margin: 0 0 var(--rv-para-gap);
+  padding-left: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prose li::marker {
+  color: var(--rv-text-dim);
+}
+
 .prose code {
   font-family: var(--rv-font-mono);
   font-size: var(--rv-code-size);
