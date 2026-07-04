@@ -34,7 +34,9 @@ const canonical = `${SITE_URL}/essays/${essay.id}`;
 const ogImage = `${SITE_URL}/og/${essay.id}.png`;
 const published = essay.data.date;
 const updated = essay.data.updated ?? published;
-const showBanner = essay.data.type === 'essay';
+// hero opener: essays always (generative if no art); notes only when they
+// bring their own art — a bare note keeps the plain header
+const showBanner = essay.data.type === 'essay' || Boolean(essay.data.banner);
 const coverMeta = essay.data.figures?.cover;
 const prov = provenanceFor(essay);
 
@@ -209,7 +211,7 @@ const jsonLd = {
   .scrim {
     position: absolute;
     inset: 0;
-    background: rgba(11, 21, 32, 0.42);
+    background: rgba(11, 21, 32, 0.45);
   }
   .hero-frame {
     position: relative;
@@ -218,6 +220,7 @@ const jsonLd = {
     max-width: 1120px;
     margin: 0 auto;
     padding: 110px 24px 56px;
+    text-shadow: 0 1px 2px rgba(11, 21, 32, 0.6), 0 0 28px rgba(11, 21, 32, 0.7);
   }
   .hero-frame header,
   .note-header {

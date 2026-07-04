@@ -150,7 +150,7 @@ const latestLen = latest ? measure(latest.body ?? '') : null;
   .scrim {
     position: absolute;
     inset: 0;
-    background: rgba(11, 21, 32, 0.34);
+    background: rgba(11, 21, 32, 0.45);
   }
   .hero-content {
     position: relative;
@@ -162,6 +162,8 @@ const latestLen = latest ? measure(latest.body ?? '') : null;
     flex-direction: column;
     gap: 20px;
     max-width: var(--rv-frame);
+    /* soft dark halo keeps type legible over bright art regions */
+    text-shadow: 0 1px 2px rgba(11, 21, 32, 0.6), 0 0 28px rgba(11, 21, 32, 0.7);
   }
   .hero h1 {
     font-size: var(--rv-display-size);
