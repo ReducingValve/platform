@@ -1,0 +1,598 @@
+---
+// The complete index: every published piece, newest first — readable whole
+// with JavaScript off. Search, filters, and sort are progressive
+// enhancement layered on top (Pagefind over dist, loaded lazily; in dev or
+// on any failure the controls quietly stand down and the list stays).
+import { Picture } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import NavBar from '../../components/NavBar.astro';
+import GenerativeBanner from '../../components/GenerativeBanner.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { getPublishedEssays, measure, formatDate, essayPath } from '../../lib/essays';
+
+const essays = await getPublishedEssays();
+
+// length buckets share the site's reading speed (src/lib/essays.ts: 230 wpm)
+const TYPES = ['essay', 'note'] as const;
+const TAGS = ['agents', 'markets', 'attention'] as const;
+---
+
+<Base
+  title="Essays"
+  description="Every essay and note from The Reducing Valve, newest first. Search, filter by type, tag, or length."
+>
+  <NavBar />
+
+  <main id="main" data-pagefind-ignore>
+    <header class="frame page-head">
+      <h1 class="kicker heading">Essays</h1>
+      <p class="meta count">
+        {essays.length} pieces — essays and notes on agents, markets, and attention, newest first.
+      </p>
+    </header>
+
+    {/* controls render hidden and are revealed by the inline script below;
+        with JS off (or Pagefind missing, as in dev) the plain list stands */}
+    <div class="frame controls" id="controls" hidden>
+      <div class="controls-inner">
+        <div class="search-row" id="search-row">
+          <label class="ctrl-label" for="essay-search">Search</label>
+          <input
+            type="search"
+            id="essay-search"
+            name="q"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Search the full text…"
+          />
+        </div>
+
+        <div class="facet-rows">
+          <fieldset class="facet" id="type-facet">
+            <legend class="ctrl-label">Type</legend>
+            <div class="chips">
+              <button type="button" class="chip" data-value="all" aria-pressed="true">All</button>
+              {TYPES.map((t) => (
+                <button type="button" class="chip" data-value={t} aria-pressed="false">{t}</button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset class="facet" id="tag-facet">
+            <legend class="ctrl-label">Tags</legend>
+            <div class="chips">
+              {TAGS.map((t) => (
+                <button type="button" class="chip" data-value={t} aria-pressed="false">{t}</button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset class="facet" id="length-facet">
+            <legend class="ctrl-label">Length</legend>
+            <div class="chips">
+              <button type="button" class="chip" data-value="all" aria-pressed="true">All</button>
+              <button type="button" class="chip" data-value="short" aria-pressed="false">&lt; 10 min</button>
+              <button type="button" class="chip" data-value="mid" aria-pressed="false">10–20 min</button>
+              <button type="button" class="chip" data-value="long" aria-pressed="false">20+ min</button>
+            </div>
+          </fieldset>
+
+          <div class="facet sort-facet">
+            <label class="ctrl-label" for="essay-sort">Sort</label>
+            <select id="essay-sort">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="longest">Longest</option>
+              <option value="shortest">Shortest</option>
+              <option value="az">A–Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <p class="status meta" id="status" aria-live="polite"></p>
+          <button type="button" class="reset" id="reset" hidden>Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="frame index-section" aria-label="All essays">
+      <ol class="grid" id="essay-grid">
+        {essays.map((essay) => {
+          const len = measure(essay.body ?? '');
+          return (
+            <li
+              class="card-item"
+              data-url={essayPath(essay)}
+              data-title={essay.data.title.toLowerCase()}
+              data-date={essay.data.date.toISOString().slice(0, 10)}
+              data-words={len.words}
+              data-type={essay.data.type}
+              data-tags={essay.data.tags.join(',')}
+            >
+              <article class="card">
+                <a href={essayPath(essay)} class="card-art" aria-hidden="true" tabindex="-1">
+                  {essay.data.banner ? (
+                    <Picture
+                      src={essay.data.banner}
+                      formats={['avif']}
+                      fallbackFormat="webp"
+                      widths={[420, 840]}
+                      sizes="(max-width: 720px) 100vw, 33vw"
+                      alt=""
+                    />
+                  ) : (
+                    <GenerativeBanner seed={essay.id} height={400} />
+                  )}
+                </a>
+                <p class="meta">
+                  {essay.data.issue && <>№ {essay.data.issue} · </>}
+                  <time datetime={essay.data.date.toISOString().slice(0, 10)}>
+                    {formatDate(essay.data.date)}
+                  </time>
+                  {' · '}{len.minutes} min
+                </p>
+                <h3><a href={essayPath(essay)}>{essay.data.title}</a></h3>
+                <p class="card-dek">{essay.data.dek}</p>
+                <p class="facets">
+                  <span class="facet-tag">{essay.data.type}</span>
+                  {essay.data.tags.map((tag: string) => <span class="facet-tag">{tag}</span>)}
+                </p>
+              </article>
+            </li>
+          );
+        })}
+      </ol>
+      <p class="empty meta" id="empty" hidden>Nothing matches. Widen the filter.</p>
+    </section>
+  </main>
+
+  <SiteFooter />
+</Base>
+
+<script is:inline>
+  (function () {
+    var controls = document.getElementById('controls');
+    var grid = document.getElementById('essay-grid');
+    if (!controls || !grid) return;
+
+    var items = Array.prototype.slice.call(grid.children);
+    items.forEach(function (item, i) { item._idx = i; });
+
+    var searchRow = document.getElementById('search-row');
+    var searchInput = document.getElementById('essay-search');
+    var sortSelect = document.getElementById('essay-sort');
+    var status = document.getElementById('status');
+    var resetBtn = document.getElementById('reset');
+    var empty = document.getElementById('empty');
+
+    // JS is available — reveal the controls
+    controls.hidden = false;
+
+    var state = {
+      query: '',
+      searchUrls: null, // null = no query narrowing
+      type: 'all',
+      tags: [],
+      length: 'all',
+      sort: 'newest',
+    };
+
+    // ---- pagefind: lazy, silent on failure (dev has no index) ----
+    var pagefind = null;
+    var pagefindFailed = false;
+    function ensurePagefind() {
+      if (pagefind || pagefindFailed) return Promise.resolve(pagefind);
+      return import('/pagefind/pagefind.js')
+        .then(function (pf) { pagefind = pf; return pf; })
+        .catch(function () {
+          pagefindFailed = true;
+          if (searchRow) searchRow.hidden = true; // stand down quietly
+          return null;
+        });
+    }
+    if (searchInput) {
+      searchInput.addEventListener('focus', ensurePagefind, { once: true });
+    }
+
+    function normalizeUrl(u) {
+      return String(u)
+        .replace(/^https?:\/\/[^/]+/, '')
+        .replace(/\.html$/, '')
+        .replace(/\/+$/, '');
+    }
+
+    var debounceTimer = null;
+    var searchToken = 0;
+    function onSearchInput() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(runSearch, 150);
+    }
+    function runSearch() {
+      var q = searchInput.value.trim();
+      state.query = q;
+      var token = ++searchToken;
+      if (!q) {
+        state.searchUrls = null;
+        apply();
+        return;
+      }
+      ensurePagefind().then(function (pf) {
+        if (!pf) {
+          state.searchUrls = null; // fail silent: full list stays
+          if (token === searchToken) apply();
+          return;
+        }
+        pf.search(q)
+          .then(function (res) {
+            return Promise.all(res.results.map(function (r) { return r.data(); }));
+          })
+          .then(function (datas) {
+            if (token !== searchToken) return; // a newer keystroke owns the list
+            state.searchUrls = {};
+            datas.forEach(function (d) { state.searchUrls[normalizeUrl(d.url)] = true; });
+            apply();
+          })
+          .catch(function () {
+            if (token === searchToken) { state.searchUrls = null; apply(); }
+          });
+      });
+    }
+    if (searchInput) searchInput.addEventListener('input', onSearchInput);
+
+    // ---- facet chips ----
+    function wireSingleSelect(fieldsetId, key) {
+      var fs = document.getElementById(fieldsetId);
+      if (!fs) return;
+      var chips = fs.querySelectorAll('.chip');
+      chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          chips.forEach(function (c) { c.setAttribute('aria-pressed', 'false'); });
+          chip.setAttribute('aria-pressed', 'true');
+          state[key] = chip.getAttribute('data-value');
+          apply();
+        });
+      });
+    }
+    wireSingleSelect('type-facet', 'type');
+    wireSingleSelect('length-facet', 'length');
+
+    var tagFacet = document.getElementById('tag-facet');
+    if (tagFacet) {
+      tagFacet.querySelectorAll('.chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          var on = chip.getAttribute('aria-pressed') === 'true';
+          chip.setAttribute('aria-pressed', on ? 'false' : 'true');
+          var v = chip.getAttribute('data-value');
+          state.tags = state.tags.filter(function (t) { return t !== v; });
+          if (!on) state.tags.push(v);
+          apply();
+        });
+      });
+    }
+
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function () {
+        state.sort = sortSelect.value;
+        apply();
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        state.query = '';
+        state.searchUrls = null;
+        state.type = 'all';
+        state.tags = [];
+        state.length = 'all';
+        state.sort = 'newest';
+        if (searchInput) searchInput.value = '';
+        if (sortSelect) sortSelect.value = 'newest';
+        document.querySelectorAll('#controls .chip').forEach(function (chip) {
+          var v = chip.getAttribute('data-value');
+          var isDefault = chip.closest('#tag-facet') ? false : v === 'all';
+          chip.setAttribute('aria-pressed', isDefault ? 'true' : 'false');
+        });
+        apply();
+      });
+    }
+
+    // ---- filter, then sort ----
+    var MIN = 230; // words per minute, src/lib/essays.ts
+    function matches(item) {
+      if (state.searchUrls && !state.searchUrls[item.getAttribute('data-url')]) return false;
+      if (state.type !== 'all' && item.getAttribute('data-type') !== state.type) return false;
+      if (state.tags.length) {
+        var own = (item.getAttribute('data-tags') || '').split(',');
+        var hit = state.tags.some(function (t) { return own.indexOf(t) !== -1; });
+        if (!hit) return false;
+      }
+      if (state.length !== 'all') {
+        var minutes = (+item.getAttribute('data-words')) / MIN;
+        if (state.length === 'short' && minutes >= 10) return false;
+        if (state.length === 'mid' && (minutes < 10 || minutes >= 20)) return false;
+        if (state.length === 'long' && minutes < 20) return false;
+      }
+      return true;
+    }
+
+    var comparators = {
+      newest: function (a, b) {
+        return b.getAttribute('data-date').localeCompare(a.getAttribute('data-date')) || a._idx - b._idx;
+      },
+      oldest: function (a, b) {
+        return a.getAttribute('data-date').localeCompare(b.getAttribute('data-date')) || a._idx - b._idx;
+      },
+      longest: function (a, b) {
+        return (+b.getAttribute('data-words')) - (+a.getAttribute('data-words')) || a._idx - b._idx;
+      },
+      shortest: function (a, b) {
+        return (+a.getAttribute('data-words')) - (+b.getAttribute('data-words')) || a._idx - b._idx;
+      },
+      az: function (a, b) {
+        return a.getAttribute('data-title').localeCompare(b.getAttribute('data-title')) || a._idx - b._idx;
+      },
+    };
+
+    function apply() {
+      var visible = 0;
+      items.forEach(function (item) {
+        var show = matches(item);
+        item.hidden = !show;
+        if (show) visible++;
+      });
+      items.slice().sort(comparators[state.sort] || comparators.newest).forEach(function (item) {
+        grid.appendChild(item); // reorder: appendChild moves existing nodes
+      });
+
+      var narrowed =
+        state.query !== '' ||
+        state.type !== 'all' ||
+        state.tags.length > 0 ||
+        state.length !== 'all';
+      status.textContent = visible + ' of ' + items.length;
+      resetBtn.hidden = !narrowed;
+      empty.hidden = visible !== 0;
+      grid.hidden = visible === 0;
+    }
+
+    apply();
+  })();
+</script>
+
+<style>
+  .frame {
+    max-width: var(--rv-frame);
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  /* ---- header ---- */
+  .page-head {
+    padding-top: 76px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .heading {
+    letter-spacing: 0.28em;
+  }
+  .count {
+    max-width: 58ch;
+  }
+
+  /* ---- controls (hidden until JS reveals them) ---- */
+  .controls {
+    margin-top: 26px;
+  }
+  .controls[hidden] {
+    display: none;
+  }
+  .controls-inner {
+    border-top: 1px solid var(--rv-rule);
+    border-bottom: 1px solid var(--rv-rule);
+    padding: 14px 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ctrl-label {
+    font-family: var(--rv-font-sans);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rv-text-dim);
+  }
+  .search-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    max-width: 480px;
+  }
+  .search-row[hidden] {
+    display: none;
+  }
+  .search-row input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--rv-rule);
+    border-radius: 0;
+    padding: 3px 2px 5px;
+    font-family: var(--rv-font-sans);
+    font-size: 15px;
+    color: var(--rv-text-strong);
+    transition: border-color var(--rv-duration) var(--rv-ease);
+  }
+  .search-row input::placeholder {
+    color: var(--rv-text-faint);
+  }
+  .search-row input:hover {
+    border-bottom-color: var(--rv-text-dim);
+  }
+  .search-row input:focus {
+    outline: none;
+    border-bottom-color: var(--rv-amber);
+  }
+  /* keep the global amber focus ring off the text input — the underline is the state */
+  .search-row input:focus-visible {
+    outline: none;
+    border-bottom-color: var(--rv-amber);
+  }
+
+  .facet-rows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 32px;
+    align-items: baseline;
+  }
+  .facet {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    background: transparent;
+    border: 1px solid var(--rv-rule);
+    border-radius: 999px;
+    padding: 3px 11px;
+    font-family: var(--rv-font-sans);
+    font-size: 12.5px;
+    letter-spacing: 0.03em;
+    color: var(--rv-text-dim);
+    cursor: pointer;
+    transition: color var(--rv-duration) var(--rv-ease),
+      border-color var(--rv-duration) var(--rv-ease);
+  }
+  .chip:hover {
+    color: var(--rv-text-strong);
+    border-color: var(--rv-text-dim);
+  }
+  .chip[aria-pressed='true'] {
+    color: var(--rv-link-hover);
+    border-color: var(--rv-amber);
+  }
+
+  .sort-facet select {
+    background: transparent;
+    border: 1px solid var(--rv-rule);
+    border-radius: var(--rv-radius);
+    padding: 4px 8px;
+    font-family: var(--rv-font-sans);
+    font-size: 12.5px;
+    color: var(--rv-text);
+    cursor: pointer;
+  }
+  .sort-facet select:hover {
+    border-color: var(--rv-text-dim);
+  }
+
+  .status-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    min-height: 18px;
+  }
+  .status {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+  }
+  .reset {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font-family: var(--rv-font-sans);
+    font-size: 12.5px;
+    color: var(--rv-text-dim);
+    border-bottom: 1px solid color-mix(in srgb, var(--rv-text) 30%, transparent);
+    padding-bottom: 2px;
+    cursor: pointer;
+  }
+  .reset:hover {
+    color: var(--rv-link-hover);
+    border-bottom-color: var(--rv-link-hover);
+  }
+
+  /* ---- essay grid (same register as the home cards) ---- */
+  .index-section {
+    padding-top: 34px;
+    padding-bottom: 96px;
+  }
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 44px 36px;
+  }
+  .card-item[hidden] {
+    display: none;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card-art {
+    display: block;
+    aspect-ratio: 3 / 1;
+    overflow: hidden;
+    border-radius: var(--rv-radius);
+    border: 1px solid var(--rv-rule);
+  }
+  .card-art :global(img),
+  .card-art :global(.gen-banner) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card h3 {
+    font-size: 24px;
+    line-height: 1.25;
+    font-weight: 500;
+  }
+  .card h3 a {
+    color: var(--rv-text-strong);
+  }
+  .card h3 a:hover {
+    color: var(--rv-link-hover);
+  }
+  .card-dek {
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--rv-text-dim);
+    text-wrap: pretty;
+  }
+  /* type + tag labels: content facets, visible with JS off */
+  .facets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .facet-tag {
+    font-family: var(--rv-font-sans);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rv-text-dim);
+    border: 1px solid var(--rv-rule);
+    border-radius: 999px;
+    padding: 2px 9px;
+  }
+  .empty {
+    margin-top: 40px;
+  }
+</style>

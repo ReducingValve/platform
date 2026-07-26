@@ -54,7 +54,10 @@ const latestLen = latest ? measure(latest.body ?? '') : null;
     {rest.length > 0 && (
       <section class="index-section" aria-label="All essays">
         <div class="frame">
-          <h2 class="kicker">All essays</h2>
+          <div class="index-head">
+            <h2 class="kicker">All essays</h2>
+            <a href="/essays" class="index-link">All essays <span aria-hidden="true">→</span></a>
+          </div>
           <ol class="grid">
             {rest.map((essay) => {
               const len = measure(essay.body ?? '');
@@ -236,6 +239,20 @@ const latestLen = latest ? measure(latest.body ?? '') : null;
   /* ---- essay grid ---- */
   .index-section .frame {
     padding-top: 64px;
+  }
+  .index-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .index-link {
+    font-family: var(--rv-font-sans);
+    font-size: 13px;
+    color: var(--rv-text-dim);
+  }
+  .index-link:hover {
+    color: var(--rv-link-hover);
   }
   .grid {
     list-style: none;

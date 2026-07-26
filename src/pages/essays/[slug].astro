@@ -7,6 +7,7 @@ import GenerativeBanner from '../../components/GenerativeBanner.astro';
 import Glyph from '../../components/Glyph.astro';
 import EmailCapture from '../../components/EmailCapture.astro';
 import AgentBlock from '../../components/AgentBlock.astro';
+import Lightbox from '../../components/Lightbox.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { SITE_URL, SITE_NAME, AUTHOR, LICENSE } from '../../consts';
 import { getPublishedEssays, measure, formatDate, essayPath, type Essay } from '../../lib/essays';
@@ -66,7 +67,7 @@ const jsonLd = {
   <NavBar />
 
   <main id="main">
-    <article>
+    <article data-pagefind-body>
       {showBanner ? (
         <div class="hero">
           <div class="hero-art" aria-hidden="true">
@@ -142,9 +143,11 @@ const jsonLd = {
           <Glyph width={44} stroke={4} />
         </div>
 
-        <AgentBlock slug={essay.id} signed={prov.signed} />
+        <div data-pagefind-ignore>
+          <AgentBlock slug={essay.id} signed={prov.signed} />
+        </div>
 
-        <footer class="colophon">
+        <footer class="colophon" data-pagefind-ignore>
           <p class="meta">
             © {published.getUTCFullYear()} {AUTHOR} · Licensed
             <a href={LICENSE.url} rel="license" class="quiet-link">{LICENSE.label}</a>
@@ -159,7 +162,7 @@ const jsonLd = {
         </footer>
 
         {(older || newer) && (
-          <nav class="adjacent" aria-label="More essays">
+          <nav class="adjacent" aria-label="More essays" data-pagefind-ignore>
             {older && (
               <a href={essayPath(older)} class="adj">
                 <span class="kicker">Older</span>
@@ -175,12 +178,14 @@ const jsonLd = {
           </nav>
         )}
 
-        <section class="subscribe">
+        <section class="subscribe" data-pagefind-ignore>
           <EmailCapture />
         </section>
       </div>
     </article>
   </main>
+
+  <Lightbox />
 
   <SiteFooter />
 </Base>
@@ -234,13 +239,6 @@ const jsonLd = {
   }
   .body-start {
     margin-top: var(--rv-space-xl);
-  }
-  .banner :global(img),
-  .banner :global(.gen-banner) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
   }
 
   .column {

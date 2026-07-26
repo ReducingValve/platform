@@ -2,13 +2,14 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import rehypeFigure from './src/lib/rehype-figure';
+import rehypeHeadingIds from './src/lib/rehype-heading-ids';
 
 export default defineConfig({
   site: 'https://thereducingvalve.com',
   trailingSlash: 'never',
   integrations: [sitemap()],
   markdown: {
-    rehypePlugins: [rehypeFigure],
+    rehypePlugins: [rehypeFigure, rehypeHeadingIds],
   },
   build: {
     // file format serves /about from about.html on Pages without a 308

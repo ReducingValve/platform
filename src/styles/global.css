@@ -186,6 +186,30 @@ a:hover {
   margin: var(--rv-space-lg) 0 var(--rv-space-sm);
 }
 
+/* heading deep-links: build-time self-anchors (rehype-heading-ids), faint
+   until the heading is hovered or the anchor itself is focused */
+.prose .heading-anchor {
+  margin-left: 10px;
+  border-bottom: none;
+  font-family: var(--rv-font-sans);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--rv-text-faint);
+  opacity: 0;
+  transition: opacity var(--rv-duration) var(--rv-ease),
+    color var(--rv-duration) var(--rv-ease);
+}
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor,
+.prose .heading-anchor:focus {
+  opacity: 1;
+}
+.prose .heading-anchor:hover,
+.prose .heading-anchor:focus {
+  color: var(--rv-amber);
+}
+
 .prose blockquote {
   margin: var(--rv-space-md) 0 var(--rv-space-md) 0;
   padding-left: var(--rv-blockquote-indent);
